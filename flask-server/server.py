@@ -1,3 +1,4 @@
+import csv
 from flask import Flask, request, jsonify, session
 from flask_session import Session
 from flask_cors import CORS, cross_origin
@@ -25,23 +26,73 @@ server_session = Session(app)
 
 @app.route("/device-map", methods=['GET'])
 def device_map():
-  return jsonify([
-    {   
-      "devId": "a84041e08189aaaa",
-      "name": "Test",
-      "lat": "-31.558335",
-      "lng": "143.377734",
-    },
-    {
-      "devId": "a84041e08189bbbb",
-      "name": "Test",
-      "lat": "-31.560691",
-      "lng": "143.373465",
-    },
-  ])
+  '''
+    What really will happen here is we will get an identifier from the session and 
+    use that to detirmine what device data to retrieve. That will be pulled from db.
+    Then we use that information to pull the relevant data files and return that.
+    devId, siteName, lat, lng will come from the db, data will come from the files.
+  '''
+
+  data = []
+  for d in ["a84041e08189aaaa", "a84041e08189bbbb"]:
+    try:
+      with open(f"../data_logs/{d}.log", "r") as f:
+        c = csv.reader(f)
+        last_line = None
+        for row in c:
+          last_line = row
+        device_info = {
+          "devId": f"{d}",
+          "siteName": "Test",
+          "lat": "-31.558335" if d == "a84041e08189aaaa" else "-31.560691",
+          "lng": "143.377734" if d == "a84041e08189aaaa" else "143.373465",
+          "data": {
+            "pressure": last_line[0],
+            "flow": last_line[1],
+            "time": last_line[2],
+          }       
+        }
+        data.append(device_info)
+    except Exception as e:
+      print("Error encountered trying to read device files", e)
+    
+  # print(data)
+  return jsonify(data)
 
 
-# @cross_origin
+@app.route("/site-data/<id>", methods=["GET"])
+def site_data(id):
+  # Return site specific data set
+  data = []
+  try:
+      with open(f"../data_logs/{id}.log", "r") as f:
+        c = csv.reader(f)
+
+        device_data = {
+          "devId": f"{id}",
+          "siteName": "Test",
+          "lat": "-31.558335" if id == "a84041e08189aaaa" else "-31.560691",
+          "lng": "143.377734" if id == "a84041e08189aaaa" else "143.373465",
+          "data": []
+        }
+
+        data = []
+        for row in c:
+          d = {
+            "pressure": row[0],
+            "flow": row[1],
+            "time": row[2],            
+          }
+
+          data.append(d)
+        device_data['data'] = data
+  except Exception as e:
+      print("Error encountered trying to read device files", e)
+    
+  print(device_data)
+  return jsonify(device_data)
+
+
 @app.route("/@me", methods=['GET'])
 def get_current_user():
   user_id = session.get("user_id")
@@ -63,7 +114,7 @@ def get_current_user():
       "email": "fake@address.com"
     })
 
-# @cross_origin
+
 @app.route("/login", methods=["POST"])
 def login():
    session.clear()

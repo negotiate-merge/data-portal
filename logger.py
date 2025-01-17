@@ -30,9 +30,8 @@ QOS = 0
 DEBUG = False
 
 devices = [
-    "863663062798815",
-    "123456789876543",
-    "987654321234567",
+    "a84041e08189aaaa",
+    "a84041e08189bbbb",
 ]
 
 def get_value_from_json_object(obj, key):
@@ -88,6 +87,8 @@ def on_message(client, userdata, message):
         with open(f"{data_dir}/{imei}.log", "a") as fw:
             for p in points:
                 fw.write(", ".join(map(str, p)) + "\n")
+    else:
+        print(f"device with {imei} is not known")
                 
     # except KeyError:
     #     # We have a different response that we want to read the output of

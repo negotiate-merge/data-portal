@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import axios from 'axios';
+import { Link } from 'react-router-dom';
+import httpClient from '../httpClient';
 import {
   APIProvider,
   Map,
@@ -16,7 +17,7 @@ const MapPage = () => {
   useEffect(() => {
     const fetchDevices = async () => {
       try {
-      const res = await axios.get("/device-map")
+      const res = await httpClient.get("/device-map")
         setData(res.data);
         console.log("res.data", res.data);
       } catch (err) {
@@ -51,18 +52,6 @@ const MapPage = () => {
   )
 }
 
-/*
-function pinColor(point) {
-  if (point.emergency) {
-      return "#ED1F1F";
-  } else if (point.pumping) {
-      return "green";
-  } else {
-      return "orange";
-  }
-}
-*/
-
 const Marker = ({point}) => {
 
   const [markerRef, marker] = useAdvancedMarkerRef();
@@ -87,7 +76,25 @@ const Marker = ({point}) => {
     <Pin />
     {infoWindowShown && 
       <InfoWindow className="iwColumn" anchor={marker} onClose={handleClose}>
-
+        <div>
+          <table>
+            <tbody>
+              <tr>
+                <td>Site name:</td><td>{point.siteName}</td>
+              </tr>
+              <tr>
+                <td>DevID:</td><td>{point.devId}</td>
+              </tr>
+              <tr>
+                <td>Pressure:</td><td>{point.data.pressure}</td>
+              </tr>
+              <tr>
+                <td>Flow:</td><td>{point.data.flow}</td>
+              </tr>
+            </tbody>
+          </table>
+          <Link to={`/site-data/${point.devId}`}>Go to site data</Link>
+        </div>
       </InfoWindow> }
     </AdvancedMarker>
   );

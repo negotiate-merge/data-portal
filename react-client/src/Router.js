@@ -3,6 +3,7 @@ import LandingPage from "./pages/LandingPage";
 import NotFound from "./pages/NotFound";
 import LoginPage from "./pages/LoginPage";
 import MapPage from "./pages/MapPage";
+import DevicePage from "./pages/DevicePage";
 
  const Router = () => {
   return (
@@ -11,6 +12,7 @@ import MapPage from "./pages/MapPage";
         <Route path="/" element={<LandingPage />}/>
         <Route path="/login" element={<LoginPage />}/>
         <Route path="/map" element={<MapPage />}></Route>
+        <Route path="/site-data/:devId" element={<DevicePage />}></Route>
         <Route path="*" element={<NotFound />}/>
       </Routes>
     </BrowserRouter>
