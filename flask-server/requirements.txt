@@ -1,0 +1,7 @@
+flask
+mysql-connector-python
+paho-mqtt
+flask-session
+redis
+python-dotenv
+flask-cors
