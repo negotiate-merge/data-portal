@@ -1,6 +1,7 @@
 import React, { useState, useEffect }from 'react'
 import { useParams } from 'react-router-dom'
 import httpClient from '../httpClient';
+import LineGraph from '../LineGraph';
 
 
 const DevicePage = () => {
@@ -30,6 +31,10 @@ const DevicePage = () => {
     <>
       <div>DevicePage for ID: { data.devId }</div>
       <div>{JSON.stringify(data)}</div>
+      <h1>Line Graph with D3 in React</h1>
+      <div>
+        <LineGraph />
+      </div>
     </>
   )
 }
