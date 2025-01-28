@@ -1,0 +1,13 @@
+controller.log
+data_logs/
+flask-server/.env
+flask-server/__pycache__/
+flask-server/config.py
+flask-server/play_files.py
+notes
+package-lock.json
+public/
+App.js
+reportWebVitals.js
+react-client/README.md
+react-client/node_modules/
