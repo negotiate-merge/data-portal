@@ -1,55 +1,8 @@
-main .form-control
-{
-  /* center form controls */
-  display: inline-block;
-
-  /* override Bootstrap's 100% width for form controls */
-  width: auto;
+svg {
+  background-color: grey;
+  overflow: visible;
 }
 
-main
-{
-  /* scroll horizontally as needed */
-  overflow-x: auto;
-
-  /* center contents */
-  text-align: center;
-}
-
-main img
-{
-  /* constrain images on small screens */
-  max-width: 100%;
-}
-
-.table-left {
-  text-align: left;
-  padding-left: 5px;
-}
-
-div.cell-amount {
-  width: 50%;
-  text-align: right;
-}
-
-.left {
-  text-align: left;
-}
-
-.center {
-  margin: auto;
-  width: 80%;
-}
-
-button {
-  margin: 10px;
-  padding: 10px;
-}
-
-label {
-  font-size: 20px;
-}
-
-input {
-  font-size: 18px;;
+.device-page {
+  margin: 10px 0 0 25px;
 }

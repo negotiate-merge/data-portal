@@ -1,5 +1,6 @@
 import csv
-from flask import Flask, request, jsonify, session
+import os
+from flask import Flask, request, session, send_file, jsonify 
 from flask_session import Session
 from flask_cors import CORS, cross_origin
 from config import ApplicationConfig
@@ -36,7 +37,7 @@ def device_map():
   data = []
   for d in ["a84041e08189aaaa", "a84041e08189bbbb"]:
     try:
-      with open(f"../data_logs/{d}.log", "r") as f:
+      with open(f"../data_logs/{d}.csv", "r") as f:
         c = csv.reader(f)
         last_line = None
         for row in c:
@@ -47,9 +48,9 @@ def device_map():
           "lat": "-31.558335" if d == "a84041e08189aaaa" else "-31.560691",
           "lng": "143.377734" if d == "a84041e08189aaaa" else "143.373465",
           "data": {
-            "pressure": last_line[0],
-            "flow": last_line[1],
-            "time": last_line[2],
+            "pressure": last_line[1],
+            "flow": last_line[2],
+            "date": last_line[0],
           }       
         }
         data.append(device_info)
@@ -63,6 +64,20 @@ def device_map():
 @app.route("/site-data/<id>", methods=["GET"])
 def site_data(id):
   # Return site specific data set
+  logfile = f"../data_logs/{id}.csv"
+  if os.path.exists(logfile):
+    print("Valid file found returning data for {}".format(id))
+    return send_file(
+      logfile,
+      mimetype='text/csv',
+      as_attachment=False
+    )
+  else: 
+    print(f"file with id {type(id)} not found")
+    return None
+  
+  """ WE ARE RETURNING THE CSV DIRECTLY RATHER THAN TYRING TO RETURN JSON AS PREVIOUSLY ATTEMPTED
+
   data = []
   try:
       with open(f"../data_logs/{id}.log", "r") as f:
@@ -81,7 +96,7 @@ def site_data(id):
           d = {
             "pressure": row[0],
             "flow": row[1],
-            "time": row[2],            
+            "date": row[2].lstrip(" "),            
           }
 
           data.append(d)
@@ -91,6 +106,8 @@ def site_data(id):
     
   print(device_data)
   return jsonify(device_data)
+
+  """
 
 
 @app.route("/@me", methods=['GET'])

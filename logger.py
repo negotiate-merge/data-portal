@@ -6,6 +6,7 @@
 # Instructions to use Eclipse Paho MQTT Python client library:
 # https://www.thethingsindustries.com/docs/integrations/mqtt/mqtt-clients/eclipse-paho/)
 #
+import csv
 import os
 import sys
 import logging
@@ -84,9 +85,17 @@ def on_message(client, userdata, message):
             print("something unexpected has occurred")
         # print(json.dumps(points, indent=2))
 
-        with open(f"{data_dir}/{imei}.log", "a") as fw:
+        log_file = f"{data_dir}/{imei}.csv"
+
+        if not os.path.exists(log_file):
+            with open(log_file, 'w', newline='') as csvfile:
+                writer = csv.writer(csvfile)
+                writer.writerow(["Time", "Pressure", "Flow"]) 
+
+        with open(log_file, "a") as csvfile:
+            writer = csv.writer(csvfile)
             for p in points:
-                fw.write(", ".join(map(str, p)) + "\n")
+                writer.writerow([str(p[2]), str(p[0]), str(p[1])])     # (", ".join(map(str, p)) + "\n")
     else:
         print(f"device with {imei} is not known")
                 
