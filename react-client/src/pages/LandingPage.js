@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from "react";
 import httpClient from "../httpClient";
+import { Link } from 'react-router-dom';
+import Navbar from "../Navbar";
 
 const LandingPage = () => {
   const [ user, setUser ] = useState(null);
@@ -30,14 +32,13 @@ const LandingPage = () => {
 
 
   return (
-    <div className="center">
-      <h1>Welcome to this React Application</h1>
+    <div className="me center">
       { user != null ? (
         <div>
-          <h2>Logged in</h2>
-          <h3>ID: {user.id}</h3>
+          <h1>Welcome {user.email} to the IoT sensor data portal</h1>
           <h3>Email: {user.email}</h3>
           <button onClick={logoutUser}>Logout</button>
+          <Link to={'/map'}>Go to map</Link>
         </div>
       ) : (
         <div>

@@ -14,7 +14,7 @@ const LoginPage = () => {
         password,
       });
       
-      window.location.href = "/map";
+      window.location.href = "/me";
     } catch (err) {
       if (err.repsonse.status === 401) {
         alert("Invalid Credentials");
@@ -23,18 +23,18 @@ const LoginPage = () => {
   }
     
   return (
-    <div>
-      <h1>Log in to your account</h1>
+    <div className='center'>
+      <h1>Log in to Data Store</h1>
       <form>
-        <div>
-          <label>Email: </label>
-          <input type="text" value={email} onChange={(e) => setEmail(e.target.value)} id="email" />
+        <div className='form-group'>
+          <input autoComplete='off' autoFocus className='form-control' placeholder='Email' type="text" value={email} 
+            onChange={(e) => setEmail(e.target.value)} id="Email" />
         </div>
-        <div>
-          <label>Password: </label>
-          <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} id="passwd" />
+        <div className='form-group'>
+          <input className='form-control' placeholder='Password' type="password" value={password} 
+            onChange={(e) => setPassword(e.target.value)} id="passwd" />
         </div>
-        <button type="button" onClick={() => logInUser()}>Submit</button>
+        <button className='btn btn-dark' type="button" onClick={() => logInUser()}>Submit</button>
       </form>
     </div>
   );

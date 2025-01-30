@@ -33,7 +33,7 @@ def device_map():
     Then we use that information to pull the relevant data files and return that.
     devId, siteName, lat, lng will come from the db, data will come from the files.
   '''
-
+  if not session.get("user_id"): return jsonify({"error": "Unauthorized"}), 401
   data = []
   for d in ["a84041e08189aaaa", "a84041e08189bbbb"]:
     try:
@@ -56,13 +56,17 @@ def device_map():
         data.append(device_info)
     except Exception as e:
       print("Error encountered trying to read device files", e)
-    
-  # print(data)
+
+  
+  print(data, "\n\n")
+
   return jsonify(data)
 
 
 @app.route("/site-data/<id>", methods=["GET"])
 def site_data(id):
+  if not session.get("user_id"): return jsonify({"error": "Unauthorized"}), 401
+
   # Return site specific data set
   logfile = f"../data_logs/{id}.csv"
   if os.path.exists(logfile):
@@ -74,40 +78,7 @@ def site_data(id):
     )
   else: 
     print(f"file with id {type(id)} not found")
-    return None
-  
-  """ WE ARE RETURNING THE CSV DIRECTLY RATHER THAN TYRING TO RETURN JSON AS PREVIOUSLY ATTEMPTED
-
-  data = []
-  try:
-      with open(f"../data_logs/{id}.log", "r") as f:
-        c = csv.reader(f)
-
-        device_data = {
-          "devId": f"{id}",
-          "siteName": "Test",
-          "lat": "-31.558335" if id == "a84041e08189aaaa" else "-31.560691",
-          "lng": "143.377734" if id == "a84041e08189aaaa" else "143.373465",
-          "data": []
-        }
-
-        data = []
-        for row in c:
-          d = {
-            "pressure": row[0],
-            "flow": row[1],
-            "date": row[2].lstrip(" "),            
-          }
-
-          data.append(d)
-        device_data['data'] = data
-  except Exception as e:
-      print("Error encountered trying to read device files", e)
-    
-  print(device_data)
-  return jsonify(device_data)
-
-  """
+    return jsonify({"error": "Resource not found"}), 404
 
 
 @app.route("/@me", methods=['GET'])
