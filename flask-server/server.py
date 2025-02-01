@@ -2,7 +2,7 @@ import csv
 import os
 from flask import Flask, request, session, send_file, jsonify 
 from flask_session import Session
-from flask_cors import CORS, cross_origin
+from flask_cors import CORS
 from config import ApplicationConfig
 import helpers as do
 from werkzeug.security import check_password_hash

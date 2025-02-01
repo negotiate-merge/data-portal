@@ -1,4 +1,6 @@
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import React, { useState, useMemo, useEffect } from 'react';
+import { UserContext } from "./UserContext";
+import { Routes, Route } from "react-router-dom";
 import LandingPage from "./pages/LandingPage";
 import NotFound from "./pages/NotFound";
 import LoginPage from "./pages/LoginPage";
@@ -6,22 +8,37 @@ import MapPage from "./pages/MapPage";
 import DevicePage from "./pages/DevicePage";
 import Navbar from "./Navbar";
 
+
  const Router = () => {
+  const [ user, setUser ] = useState(() => {
+    const savedUser = localStorage.getItem("user");
+    return savedUser ? JSON.parse(savedUser) : null;
+  });
+  
+  useEffect(() => {
+    if (user) {
+      localStorage.setItem("user", JSON.stringify(user));
+    } else {
+      localStorage.removeItem("user");
+    }
+  }, [user]);
+  
+  const value = useMemo(() => ({ user, setUser }), [user, setUser]);
+
   return (
     <>
-    <Navbar />
-    <div className="container">
-      <BrowserRouter>
+    <UserContext.Provider value={value}>
+      <Navbar />
+      <div className="container">
         <Routes>
-          <Route path="/" element={<LandingPage />}/>
-          <Route path="/login" element={<LoginPage />}/>
+          <Route path="/" element={<LoginPage />}/>
           <Route path="/me" element={<LandingPage />}/>
           <Route path="/map" element={<MapPage />}></Route>
           <Route path="/site-data/:devId" element={<DevicePage />}></Route>
           <Route path="*" element={<NotFound />}/>
         </Routes>
-      </BrowserRouter>
-    </div>
+      </div>
+    </UserContext.Provider>
     </>
   );
  };

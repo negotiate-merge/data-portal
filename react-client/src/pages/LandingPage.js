@@ -1,20 +1,20 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import httpClient from "../httpClient";
 import { Link } from 'react-router-dom';
-import Navbar from "../Navbar";
+import { UserContext } from "../UserContext";
 
 const LandingPage = () => {
-  const [ user, setUser ] = useState(null);
+  const { user, setUser } = useContext(UserContext);
 
   const logoutUser = async () => {
     try {
       const response = await httpClient.post("http://192.168.19.4:5000/logout");
       console.log("Logout response: ", response.data);
+      // Log out user here from UserContext
       window.location.href = "/"; //replace("/");
     } catch (error) {
       console.error("Error during logout: ", error);
     }
-    
   };
 
   useEffect(() => {

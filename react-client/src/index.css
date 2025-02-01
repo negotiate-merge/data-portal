@@ -25,6 +25,10 @@
   padding: 20px;
 }
 
+.space {
+  margin-top: 5px;
+}
+
 /* Nav bar */
 nav * {
   box-sizing: border-box;
