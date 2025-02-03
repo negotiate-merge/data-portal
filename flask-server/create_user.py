@@ -1,6 +1,7 @@
 from werkzeug.security import generate_password_hash
 import helpers as do
 import sys
+import uuid
 
 # Set up db connection & cursors.
 cnx = do.db_connect()
@@ -9,14 +10,28 @@ curB = cnx.cursor(buffered=True)
  
 # Querys
 get_user_emails = ("SELECT email FROM users")
-add_user = ("INSERT INTO users (email, hashed_passwd) "
-      "VALUES (%(email)s, %(password)s)")
+get_user_ids = ("SELECT id FROM users")
+add_user = ("INSERT INTO users (id, email, hashed_passwd) "
+      "VALUES (%(id)s, %(email)s, %(password)s)")
+
+# Ensure proposed UUID not already in use
+curB.execute(get_user_ids)
+id = None
+unique = False
+user_ids = {row[0] for row in curB.fetchall()} # returns a set of id's for faster lookup - O(1) instead of O(n)
+while True:
+  id = uuid.uuid4().hex
+  print (user_ids, id)
+  if id not in user_ids: break
 
 # Get new user credentials from console.
 new_user = {
+  'id': str(id),
   'email': input("Enter Email: "),
   'password': generate_password_hash(input('Enter password: '), "scrypt", salt_length=8)
 }
+
+print(new_user['id'], f"is {len(new_user['id'])} long")
 
 # Get all user emails
 curA.execute(get_user_emails)

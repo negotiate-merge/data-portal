@@ -1,7 +1,6 @@
 import React, { useContext, useState } from 'react';
 import httpClient from '../httpClient';
 import { UserContext } from '../UserContext';
-import { json } from 'd3';
 
 const LoginPage = () => {
   const [email, setEmail] = useState("");

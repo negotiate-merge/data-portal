@@ -6,11 +6,18 @@ import Router from "./Router";
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
+const today = new Date().toDateString();
+const lastvisit = localStorage.getItem("lastVisitDate");
+
+if (lastvisit !== today) {
+  localStorage.clear();
+  localStorage.setItem("lastVisitDate", today);
+}
+
 root.render(
   <BrowserRouter>
     <Router />
   </BrowserRouter>,
-  document.getElementById('root')
 );
 
 // If you want to start measuring performance in your app, pass a function

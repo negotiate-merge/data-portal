@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useContext } from "react";
+import React, { useContext } from "react";
 import httpClient from "./httpClient";
 import { UserContext } from "./UserContext";
 
@@ -10,7 +10,7 @@ import { UserContext } from "./UserContext";
       const resp = await httpClient.post("http://192.168.19.4:5000/logout");
       console.log("Logout response: ", resp.data);
       localStorage.removeItem("user");
-      window.location.href = "/";
+      // window.location.href = "/";
     } catch (error) {
       console.error("Error during logout: ", error);
     }
@@ -24,11 +24,11 @@ import { UserContext } from "./UserContext";
           <a href="/map" >Map</a>
         </li>
         <li>
-          <a href="/logout" onClick={logoutUser}>Logout</a>
+          <a href="/" onClick={logoutUser}>Logout</a>
         </li>
       </ul>)
     }
   </nav>
 }
 
-export default Navbar
+export default Navbar;

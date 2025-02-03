@@ -1,6 +1,6 @@
-import React, { useState, useEffect, useCallback, useContext } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import httpClient from '../httpClient';
-import Marker from '../marker';
+import Marker from '../Marker';
 import { UserContext } from '../UserContext';
 import {
   APIProvider,

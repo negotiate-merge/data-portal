@@ -1,10 +1,15 @@
 /* Graph page */
-#pressure-container svg {
+.graph {
   background-color: lightgray;
+  margin-bottom: 45px;
 }
 
 .device-page {
   margin: 10px 0 0 50px;
+}
+
+.graph-heading {
+  text-align: center;
 }
 
 

@@ -56,7 +56,10 @@ const Marker = ({point}) => {
               </tr>
             </tbody>
           </table>
-          <Link to={`/site-data/${point.devId}`}>Go to site data</Link>
+          <Link 
+            to={`/site-data/${point.devId}`}
+            state={point}>Go to site data
+          </Link>
         </div>
       </InfoWindow> }
     </AdvancedMarker>

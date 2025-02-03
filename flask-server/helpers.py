@@ -47,7 +47,7 @@ def create_user_table():
   cur.execute("DROP TABLE IF EXISTS users;")
   create_user_table = """ 
   CREATE TABLE users (
-    id SMALLINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    id CHAR(32) PRIMARY KEY UNIQUE,
     email VARCHAR(100) UNIQUE NOT NULL,
     hashed_passwd VARCHAR(160) DEFAULT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP

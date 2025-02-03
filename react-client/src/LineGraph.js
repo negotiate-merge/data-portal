@@ -18,9 +18,9 @@ const LineGraph = ({ device }) => {
         d.Flow = +d.Flow;
       })
 
-      d3.select("svg").remove();
-
-      const margin = { top: 20, right: 30, bottom: 50, left: 60 };
+      d3.selectAll("svg").remove();
+      
+      const margin = { top: 50, right: 30, bottom: 55, left: 50 };
       const width = 1000 - margin.left - margin.right;
       const height = 400 - margin.top - margin.bottom;
 
@@ -32,8 +32,18 @@ const LineGraph = ({ device }) => {
         .append("svg")
         .attr("width", width + margin.left + margin.right)
         .attr("height", height + margin.top + margin.bottom)
+        .attr("class", "graph")
         .append("g")
         .attr("transform", `translate(${margin.left},${margin.top})`);
+
+      // Title
+      svg.append("text")
+        .attr("x", (width / 2))
+        .attr("y", -margin.top / 2)
+        .attr("text-anchor", "middle")
+        .attr("font-size", "24px")
+        .attr("font-weight", "bold")
+        .text("Pressure")
 
       const xScale = d3.scaleTime()
         .domain(d3.extent(data, d => d.Time))   // Time range
@@ -67,7 +77,7 @@ const LineGraph = ({ device }) => {
       // Add label x axis
       svg.append("text")
         .attr("x", width / 2)
-        .attr("y", height + margin.bottom + 10)
+        .attr("y", height + margin.bottom - 10)
         .style("text-anchor", "middle")
         .text("Time");
 
@@ -91,13 +101,93 @@ const LineGraph = ({ device }) => {
         .attr("stroke-width", 4)
         .attr("d", myLine);
 
+      // Flow chart
+      const minFlow = d3.min(data, d => d.Flow);
+      const maxFlow = d3.max(data, d => d.Flow);
+      console.log(`min Pressure ${minFlow}, max Pressure ${maxFlow}`)
+
+      const svgf = d3.select("#flow-container")
+        .append("svg")
+        .attr("width", width + margin.left + margin.right)
+        .attr("height", height + margin.top + margin.bottom)
+        .attr("class", "graph")
+        .append("g")
+        .attr("transform", `translate(${margin.left},${margin.top})`);
+
+      svgf.append("text")
+        .attr("x", (width / 2))
+        .attr("y", -margin.top / 2)
+        .attr("text-anchor", "middle")
+        .attr("font-size", "24px")
+        .attr("font-weight", "bold")
+        .text("Flow")
+
+      const xScalef = d3.scaleTime()
+        .domain(d3.extent(data, d => d.Time))   // Time range
+        .range([0, width]);
+
+      const yScalef = d3.scaleLinear()
+        .domain([0, Math.ceil(maxFlow)])  // Round the highest reading up to nearest integer
+        .range([height, 0]);
+
+      
+      const xAxisf = d3.axisBottom(xScalef)
+        .ticks(data.length)
+        .tickFormat(d3.timeFormat("%H:%M"));
+
+      svgf
+        .append("g")
+        .attr("class", "x-axis")  // .select(".x-axis")
+        .attr("transform", `translate(0,${height})`) // .style("transform", `translateY(${height}px)`)
+        .call(xAxisf)
+        .selectAll("text")
+        .attr("transform", "rotate(-45)")
+        .style("text-anchor", "end"); 
+
+      const yAxisf = d3.axisLeft(yScale)
+        .ticks(5);
+      svgf.append("g")
+        .attr("class", "y-axis")  // .select(".y-axis")
+        //.style("transform", "translateX(0px)")
+        .call(yAxisf);
+
+      // Add label x axis
+      svgf.append("text")
+        .attr("x", width / 2)
+        .attr("y", height + margin.bottom - 10)
+        .style("text-anchor", "middle")
+        .text("Time");
+
+      // Add label y axis
+      svgf.append("text")
+        .attr("transform", "rotate(-90)")
+        .attr("y", -margin.left + 15)
+        .attr("x", -height / 2)
+        .style("text-anchor", "middle")
+        .text("Flow")
+
+      const myLinef = d3.line()
+        .x(d => xScale(d.Time))
+        .y(d => yScale(d.Flow))
+        .curve(d3.curveCardinal);
+      
+      svgf.append("path")
+        .datum(data)
+        .attr("fill", "none")
+        .attr("stroke", "red")
+        .attr("stroke-width", 4)
+        .attr("d", myLinef);
+
+    
+
     })
   }, []); // Removed data as a dependency
 
   return (
-    <div id="pressure-container">
-
-    </div>
+    <>
+      <div id="pressure-container"></div>
+      <div id="flow-container"></div>
+    </>
   )
 }
 
