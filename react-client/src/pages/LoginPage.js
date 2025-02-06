@@ -8,8 +8,6 @@ const LoginPage = () => {
   const { user, setUser } = useContext(UserContext)
 
   const logInUser = async () => {
-    console.log(email, password);
-
     try{
       const resp = await httpClient.post('http://192.168.19.4:5000/login', {
         email,
@@ -23,15 +21,13 @@ const LoginPage = () => {
       console.error("Response object:", err.response);
       console.error("Status:", err.response?.status);
 
-      if (err.repsonse?.status === 401) {
+      if (err.response?.status === 401) {
         alert("Invalid Credentials");
       } else {
         console.error("Login error:", err);
       }
     }
   }
-
-  if (user) console.log('user @ login page is:', user.email);
 
   if (user) return (
     <div>
@@ -42,7 +38,12 @@ const LoginPage = () => {
   return (
     <div className='center'>
       <h1>Log in to Data Store</h1>
-      <form>
+      <form
+        onKeyDown={(e) => {
+          if (e.key === 'Enter') {
+            logInUser();
+          }
+        }}>
         <div className='form-group space'>
           <input autoComplete='off' autoFocus className='form-control' placeholder='Email' type="text" value={email} 
             onChange={(e) => setEmail(e.target.value)} id="Email" />
@@ -52,7 +53,7 @@ const LoginPage = () => {
             onChange={(e) => setPassword(e.target.value)} id="passwd" />
         </div>
         <button id="login-btn" className='btn btn-dark space' type="button" 
-          onClick={() => logInUser()}>Submit</button>
+          onClick={() => logInUser()}>Login</button>
       </form>
     </div>
   );

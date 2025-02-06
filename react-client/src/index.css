@@ -12,6 +12,10 @@
   text-align: center;
 }
 
+/* Map page */
+.map-container {
+  height: calc(100vh - 58px);
+}
 
 /* Landing page & login */
 .center {
@@ -47,6 +51,7 @@ nav * {
   align-items: stretch;
   gap: 2rem;
   padding: 0 1rem;
+  height: 58px;
 }
 
 .site-title {

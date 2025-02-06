@@ -18,6 +18,8 @@ const LineGraph = ({ device }) => {
         d.Flow = +d.Flow;
       })
 
+      console.log(data);
+
       d3.selectAll("svg").remove();
       
       const margin = { top: 50, right: 30, bottom: 55, left: 50 };
@@ -46,7 +48,7 @@ const LineGraph = ({ device }) => {
         .text("Pressure")
 
       const xScale = d3.scaleTime()
-        .domain(d3.extent(data, d => d.Time))   // Time range
+        .domain([d3.min(data, d => d.Time), d3.max(data, d => d.Time)])   // Time range - old -> .domain(d3.extent(data, d => d.Time))
         .range([0, width]);
 
       const yScale = d3.scaleLinear()
@@ -56,6 +58,7 @@ const LineGraph = ({ device }) => {
       
       const xAxis = d3.axisBottom(xScale)
         .ticks(data.length)
+        .tickValues(data.map(d => d.Time))    // This fixed the missing tick from the end of the graph
         .tickFormat(d3.timeFormat("%H:%M"));
 
       svg
@@ -97,8 +100,8 @@ const LineGraph = ({ device }) => {
       svg.append("path")
         .datum(data)
         .attr("fill", "none")
-        .attr("stroke", "red")
-        .attr("stroke-width", 4)
+        .attr("stroke", "steelblue")
+        .attr("stroke-width", 3)
         .attr("d", myLine);
 
       // Flow chart
@@ -168,14 +171,14 @@ const LineGraph = ({ device }) => {
 
       const myLinef = d3.line()
         .x(d => xScale(d.Time))
-        .y(d => yScale(d.Flow))
-        .curve(d3.curveCardinal);
+        .y(d => yScale(d.Flow));
+        // .curve(d3.curveCardinal);
       
       svgf.append("path")
         .datum(data)
         .attr("fill", "none")
-        .attr("stroke", "red")
-        .attr("stroke-width", 4)
+        .attr("stroke", "steelblue")
+        .attr("stroke-width", 3)
         .attr("d", myLinef);
 
     

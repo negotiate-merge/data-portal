@@ -17,7 +17,7 @@ const MapPage = () => {
       try {
       const res = await httpClient.get("/device-map");
         setData(res.data);
-        console.log("res.data", res.data);
+        // console.log("res.data", res.data);
       } catch (err) {
         console.error("Error fetching data:", err);
       }
@@ -25,18 +25,17 @@ const MapPage = () => {
     fetchDevices();
   }, []);
 
-  console.log("Device ID's:", data.map(point => point.devId));
-  console.log('user is:', user);
+  // console.log("Device ID's:", data.map(point => point.devId));
+  // console.log('user is:', user);
 
 
   // Get these from a .env file import in the future
   const api_key = process.env.REACT_APP_MAPS_API_KEY;
   const map_id = "1a3de3b04bbcad29";
 
-
   return (
     <APIProvider apiKey={api_key}>
-      <div style={{height: "95vh"}}>
+      <div className='map-container'>
         <Map
           defaultZoom={16}
           defaultCenter={{ lat: -31.5566128, lng: 143.3754706 }}

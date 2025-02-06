@@ -21,7 +21,6 @@ const Marker = ({point}) => {
     console.error(`Latitude or longitude is missing for point with devId: ${point.devId}`);
     return null;
   } else {
-    console.log("casting string co-ordinates to float");
     point.lat = parseFloat(point.lat);
     point.lng = parseFloat(point.lng);
   }

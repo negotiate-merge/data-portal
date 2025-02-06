@@ -44,7 +44,7 @@ def device_map():
           last_line = row
         device_info = {
           "devId": f"{d}",
-          "siteName": "Test",
+          "siteName": "Test site 1" if d == "a84041e08189aaaa" else "Test site 2",
           "lat": "-31.558335" if d == "a84041e08189aaaa" else "-31.560691",
           "lng": "143.377734" if d == "a84041e08189aaaa" else "143.373465",
           "data": {
@@ -134,8 +134,12 @@ def login():
 
 @app.route("/logout", methods=["POST"])
 def logout():
-  session.pop("user_id")
-  return "200"
+  try:
+    session.pop("user_id")
+    return "200"
+  except KeyError as e:
+    return jsonify({"error": "No user_id in session"}), 205
+  
 
 if __name__ == "__main__":
   app.run(debug=True, host="0.0.0.0")
