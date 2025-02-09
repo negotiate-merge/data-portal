@@ -1,7 +1,6 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { UserContext } from "./UserContext";
 import { Routes, Route } from "react-router-dom";
-import LandingPage from "./pages/LandingPage";
 import NotFound from "./pages/NotFound";
 import LoginPage from "./pages/LoginPage";
 import MapPage from "./pages/MapPage";
@@ -32,7 +31,6 @@ import Navbar from "./Navbar";
       <div className="container">
         <Routes>
           <Route path="/" element={<LoginPage />}/>
-          <Route path="/me" element={<LandingPage />}/>
           <Route path="/map" element={<MapPage />}></Route>
           <Route path="/site-data/:devId" element={<DevicePage />}></Route>
           <Route path="*" element={<NotFound />}/>

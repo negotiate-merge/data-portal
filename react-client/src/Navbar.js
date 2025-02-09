@@ -7,7 +7,7 @@ import { UserContext } from "./UserContext";
 
     const logoutUser = async () => {
     try {
-      const resp = await httpClient.post("http://192.168.19.4:5000/logout");
+      const resp = await httpClient.post("/logout");
       console.log("Logout response: ", resp.data);
       localStorage.removeItem("user");
       // window.location.href = "/";

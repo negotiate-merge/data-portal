@@ -9,7 +9,7 @@ const LoginPage = () => {
 
   const logInUser = async () => {
     try{
-      const resp = await httpClient.post('http://192.168.19.4:5000/login', {
+      const resp = await httpClient.post('/login', {
         email,
         password,
       });
