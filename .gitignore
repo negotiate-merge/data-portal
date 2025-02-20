@@ -12,3 +12,4 @@ reportWebVitals.js
 react-client/README.md
 react-client/node_modules/
 react-client/.env
+react-client/build/

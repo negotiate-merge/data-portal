@@ -9,7 +9,7 @@ const LineGraph = ({ device }) => {
 
   useEffect(() => {
     // const svg = d3.select(svgRef.current);
-    d3.csv(`/site-data/${device}`).then(function (data) {
+    d3.csv(`/opt/data/${device}.csv`).then(function (data) {
 
       // Change number strings to numbers
       data.forEach(d => {

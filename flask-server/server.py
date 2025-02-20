@@ -22,10 +22,10 @@ def after_request(response):
   response.headers["Pragma"] = "no-cache"
   return response
 """
-cors = CORS(app, supports_credentials=True)
+cors = CORS(app, resources={r"/*": {"origins": "http://34.129.37.135:3000"}}, supports_credentials=True)
 server_session = Session(app)
 
-@app.route("/device-map", methods=['GET'])
+@app.route("/api/device-map", methods=['GET'])
 def device_map():
   '''
     What really will happen here is we will get an identifier from the session and 
@@ -37,7 +37,7 @@ def device_map():
   data = []
   for d in ["a84041e08189aaaa", "a84041e08189bbbb"]:
     try:
-      with open(f"../data_logs/{d}.csv", "r") as f:
+      with open(f"/opt/data/{d}.csv", "r") as f:
         c = csv.reader(f)
         last_line = None
         for row in c:
@@ -63,7 +63,7 @@ def device_map():
   return jsonify(data)
 
 
-@app.route("/site-data/<id>", methods=["GET"])
+@app.route("/api/site-data/<id>", methods=["GET"])
 def site_data(id):
   if not session.get("user_id"): return jsonify({"error": "Unauthorized"}), 401
 
@@ -81,7 +81,7 @@ def site_data(id):
     return jsonify({"error": "Resource not found"}), 404
 
 
-@app.route("/@me", methods=['GET'])
+@app.route("/api/@me", methods=['GET'])
 def get_current_user():
   user_id = session.get("user_id")
   if not user_id:
@@ -103,7 +103,7 @@ def get_current_user():
     })
 
 
-@app.route("/login", methods=["POST"])
+@app.route("/api/login", methods=["POST"])
 def login():
    session.clear()
 
@@ -132,7 +132,7 @@ def login():
       })
    
 
-@app.route("/logout", methods=["POST"])
+@app.route("/api/logout", methods=["POST"])
 def logout():
   try:
     session.pop("user_id")
@@ -142,4 +142,4 @@ def logout():
   
 
 if __name__ == "__main__":
-  app.run(debug=True, host="0.0.0.0")
+  app.run(debug=True, host="127.0.0.1", port=5000)
