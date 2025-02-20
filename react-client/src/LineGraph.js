@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import * as d3 from 'd3';
+import httpClient from './httpClient';
 
 const LineGraph = ({ device }) => {
   // const [data, setData] = useState([25, 30, 45, 60, 20, 65, 70]); 
@@ -9,7 +10,7 @@ const LineGraph = ({ device }) => {
 
   useEffect(() => {
     // const svg = d3.select(svgRef.current);
-    d3.csv(`/opt/data/${device}.csv`).then(function (data) {
+    d3.csv(`/api/site-data/${device}`).then(function (data) { // Previously path to csv file
 
       // Change number strings to numbers
       data.forEach(d => {
