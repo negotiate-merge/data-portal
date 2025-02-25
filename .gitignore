@@ -1,5 +1,4 @@
-controller.log
-data_logs/
+flask-server/logs/
 flask-server/.env
 flask-server/__pycache__/
 flask-server/config.py

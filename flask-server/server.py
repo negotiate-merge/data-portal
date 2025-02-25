@@ -1,5 +1,6 @@
 import csv
 import os
+import logging
 from flask import Flask, request, session, send_file, jsonify 
 from flask_session import Session
 from flask_cors import CORS
@@ -22,8 +23,12 @@ def after_request(response):
   response.headers["Pragma"] = "no-cache"
   return response
 """
-cors = CORS(app, resources={r"/*": {"origins": "http://34.129.37.135:3000"}}, supports_credentials=True)
+cors = CORS(app, resources={r"/*": {"origins": "http://34.129.37.135:80"}}, supports_credentials=True)
 server_session = Session(app)
+
+# Configure logging
+logging.basicConfig(filename='logs/server.log', level=logging.INFO, \
+                    format='%(asctime)s %(levelname)s: %(message)s', datefmt='%m/%d/%Y %I:%M:%S %p')
 
 @app.route("/api/device-map", methods=['GET'])
 def device_map():
@@ -55,10 +60,12 @@ def device_map():
         }
         data.append(device_info)
     except Exception as e:
-      print("Error encountered trying to read device files", e)
+      #print("Error encountered trying to read device files", e)
+      # logging.error("device_map: Error trying to read device file %(d)s.csv")
+      app.logger.warning(f'device_map: Error trying to read device file {d}.csv')
 
   
-  print(data, "\n\n")
+  # print(data, "\n\n")
 
   return jsonify(data)
 
@@ -68,19 +75,20 @@ def site_data(id):
   if not session.get("user_id"): return jsonify({"error": "Unauthorized"}), 401
 
   # Return site specific data set
-  logfile = f"../data_logs/{id}.csv"
-  if os.path.exists(logfile):
-    print("Valid file found returning data for {}".format(id))
+  csvfile = f"/opt/data/{id}.csv"
+  if os.path.exists(csvfile):
+    # print("Valid file found returning data for {}".format(id))
     return send_file(
-      logfile,
+      csvfile,
       mimetype='text/csv',
       as_attachment=False
     )
   else: 
     print(f"file with id {type(id)} not found")
+    app.logger.warning(f'site_data: file with id {id} not found')
     return jsonify({"error": "Resource not found"}), 404
 
-
+''' TUTORIAL BOILER PLATE LEFT FOR FUTURE REFERENCE FOR NOW
 @app.route("/api/@me", methods=['GET'])
 def get_current_user():
   user_id = session.get("user_id")
@@ -101,7 +109,7 @@ def get_current_user():
       "id": "333",
       "email": "fake@address.com"
     })
-
+'''
 
 @app.route("/api/login", methods=["POST"])
 def login():
@@ -111,6 +119,8 @@ def login():
       username = request.json["email"]
       password = request.json["password"]
       user = do.get_user(username)
+      forwarded_for = request.headers.get('X-Forwarded-For')
+      client_ip = forwarded_for.split(',')[0] if forwarded_for else request.remote_addr
       
       if user == None:
         return jsonify({"error": "Invalid username"}), 401
@@ -123,8 +133,10 @@ def login():
 
       session["user_name"] = user[1]
       session["user_id"] = user[0]
-      print(f"session user = {session['user_name']}")
-      print(f"session user id = {session['user_id']}")
+      # logging.info('login: %(username)s logged in from %(client_ip)s')
+      app.logger.info(f'login: {username} logged in from {client_ip}')
+      # print(f"session user = {session['user_name']}")
+      # print(f"session user id = {session['user_id']}")
 
       return jsonify({
         "id": user[0],
@@ -142,4 +154,4 @@ def logout():
   
 
 if __name__ == "__main__":
-  app.run(debug=True, host="127.0.0.1", port=5000)
+  app.run(host="127.0.0.1", port=5000) # debug=True, 
