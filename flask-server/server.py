@@ -64,9 +64,6 @@ def device_map():
       # logging.error("device_map: Error trying to read device file %(d)s.csv")
       app.logger.warning(f'device_map: Error trying to read device file {d}.csv')
 
-  
-  # print(data, "\n\n")
-
   return jsonify(data)
 
 
@@ -88,28 +85,7 @@ def site_data(id):
     app.logger.warning(f'site_data: file with id {id} not found')
     return jsonify({"error": "Resource not found"}), 404
 
-''' TUTORIAL BOILER PLATE LEFT FOR FUTURE REFERENCE FOR NOW
-@app.route("/api/@me", methods=['GET'])
-def get_current_user():
-  user_id = session.get("user_id")
-  if not user_id:
-    return jsonify({"error": "Unauthorized"}), 401
-  print(f"trying to get user with id {user_id}")
-  user = do.get_user(id=user_id)
-  if user:
-    u = jsonify({
-          "id": user[0],
-          "email": user[1],
-        })
-    print("returning", u)
-    return u
-  else:
-    print("No user returned")
-    return jsonify({
-      "id": "333",
-      "email": "fake@address.com"
-    })
-'''
+
 
 @app.route("/api/login", methods=["POST"])
 def login():
@@ -142,6 +118,14 @@ def login():
         "id": user[0],
         "email": user[1],
       })
+   
+
+@app.route("/api/auth/check", methods=["GET"])
+def check_auth():
+  if "user_id" in session:
+    return jsonify({"status:": "authenticated"}), 200
+  else:
+    return jsonify({"status": "unauthorized"}), 401
    
 
 @app.route("/api/logout", methods=["POST"])

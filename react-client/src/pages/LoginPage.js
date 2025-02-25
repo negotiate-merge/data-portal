@@ -31,7 +31,8 @@ const LoginPage = () => {
 
   if (user) return (
     <div>
-      {user.email} is logged in
+      <h3>You are logged in as {user.email}</h3>
+      <p>We can make a dashboard here displaying some useful stats. Things like [average, median, peak] pressure/flow etc.</p>
     </div>
   )
   

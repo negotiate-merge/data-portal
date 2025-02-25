@@ -6,6 +6,7 @@ import LoginPage from "./pages/LoginPage";
 import MapPage from "./pages/MapPage";
 import DevicePage from "./pages/DevicePage";
 import Navbar from "./Navbar";
+import httpClient from './httpClient';
 
 
  const Router = () => {
@@ -15,12 +16,21 @@ import Navbar from "./Navbar";
   });
   
   useEffect(() => {
+    httpClient.get("/auth/check")
+      .then(response => {})
+      .catch(error => {
+        console.warn("Session expired, clearing local storage...");
+        localStorage.removeItem("user");
+        setUser(null);
+      })
+    /* The former version 
     if (user) {
       localStorage.setItem("user", JSON.stringify(user));
     } else {
       localStorage.removeItem("user");
     }
-  }, [user]);
+    */
+  }, []); // Removed user as a dependencie with the above changes.
   
   const value = useMemo(() => ({ user, setUser }), [user, setUser]);
 
