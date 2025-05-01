@@ -4,9 +4,9 @@ import httpClient from './httpClient';
 
 const LineGraph = ({ device }) => {
   // const [data, setData] = useState([25, 30, 45, 60, 20, 65, 70]); 
-  const svgRef = useRef();
-  const width = 1200;
-  const height = 500;
+  // const svgRef = useRef();
+  // const width = 1200;
+  // const height = 500;
 
   useEffect(() => {
     // const svg = d3.select(svgRef.current);
@@ -23,7 +23,7 @@ const LineGraph = ({ device }) => {
 
       d3.selectAll("svg").remove();
       
-      const margin = { top: 50, right: 30, bottom: 55, left: 50 };
+      const margin = { top: 50, right: 30, bottom: 75, left: 50 }; // bottom previously 55
       const width = 1000 - margin.left - margin.right;
       const height = 400 - margin.top - margin.bottom;
 
@@ -78,12 +78,18 @@ const LineGraph = ({ device }) => {
         //.style("transform", "translateX(0px)")
         .call(yAxis);
 
-      // Add label x axis
+      // Add labels x axis
+      svg.append("text")
+        .attr("x", width / 2)
+        .attr("y", height + margin.bottom - 30)
+        .style("text-anchor", "middle")
+        .text("Time");
+
       svg.append("text")
         .attr("x", width / 2)
         .attr("y", height + margin.bottom - 10)
         .style("text-anchor", "middle")
-        .text("Time");
+        .text("18 December 2024");
 
       // Add label y axis
       svg.append("text")
@@ -134,9 +140,9 @@ const LineGraph = ({ device }) => {
         .domain([0, Math.ceil(maxFlow)])  // Round the highest reading up to nearest integer
         .range([height, 0]);
 
-      
       const xAxisf = d3.axisBottom(xScalef)
         .ticks(data.length)
+        .tickValues(data.map(d => d.Time))
         .tickFormat(d3.timeFormat("%H:%M"));
 
       svgf
@@ -148,7 +154,7 @@ const LineGraph = ({ device }) => {
         .attr("transform", "rotate(-45)")
         .style("text-anchor", "end"); 
 
-      const yAxisf = d3.axisLeft(yScale)
+      const yAxisf = d3.axisLeft(yScalef)
         .ticks(5);
       svgf.append("g")
         .attr("class", "y-axis")  // .select(".y-axis")
@@ -158,9 +164,15 @@ const LineGraph = ({ device }) => {
       // Add label x axis
       svgf.append("text")
         .attr("x", width / 2)
-        .attr("y", height + margin.bottom - 10)
+        .attr("y", height + margin.bottom - 30)
         .style("text-anchor", "middle")
         .text("Time");
+
+      svgf.append("text")
+        .attr("x", width / 2)
+        .attr("y", height + margin.bottom - 10)
+        .style("text-anchor", "middle")
+        .text("18 December 2024")
 
       // Add label y axis
       svgf.append("text")

@@ -12,15 +12,17 @@ const DevicePage = () => {
     <>
       <div className="device-page">
         <h3>Sewer Assest: { siteName }</h3>
-        <p>Latest data received</p>
-        <pre>{JSON.stringify(data)}</pre>
-        <p>Numbers for pressure and flow are populated currently as dummy figures for the voltage that would be read on the sensor. 
-          Depending on the sensor, the respective unit of measurement will be calculated from the voltage.
+        <p>Numbers for pressure and flow are populated currently as dummy figures for voltage that would be read on the sensor. 
         </p>
         <LineGraph device={devId}/>
       </div>
     </>
   )
 }
+
+/* Remove jsx from return element above
+        <p>Latest data received</p>
+        <pre>{JSON.stringify(data)}</pre>
+*/
 
 export default DevicePage

@@ -17,11 +17,14 @@ import { UserContext } from "./UserContext";
   };
 
   return <nav className="nav">
-    <a href="/" className="site-title">Data Store</a>
+    <a href="/" className="site-title">Pipe Metrix</a>
     { user && (
       <ul>
         <li>
-          <a href="/map" >Map</a>
+          <a href="/dashboard">Dashboard</a>
+        </li>
+        <li>
+          <a href="/map">Map</a>
         </li>
         <li>
           <a href="/" onClick={logoutUser}>Logout</a>

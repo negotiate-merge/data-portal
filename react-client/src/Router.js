@@ -3,6 +3,7 @@ import { UserContext } from "./UserContext";
 import { Routes, Route } from "react-router-dom";
 import NotFound from "./pages/NotFound";
 import LoginPage from "./pages/LoginPage";
+import DashBoard from './pages/DashBoard';
 import MapPage from "./pages/MapPage";
 import DevicePage from "./pages/DevicePage";
 import Navbar from "./Navbar";
@@ -41,6 +42,7 @@ import httpClient from './httpClient';
       <div className="container">
         <Routes>
           <Route path="/" element={<LoginPage />}/>
+          <Route path="/dashboard" element={<DashBoard />}></Route>
           <Route path="/map" element={<MapPage />}></Route>
           <Route path="/site-data/:devId" element={<DevicePage />}></Route>
           <Route path="*" element={<NotFound />}/>

@@ -23,12 +23,29 @@ def after_request(response):
   response.headers["Pragma"] = "no-cache"
   return response
 """
-cors = CORS(app, resources={r"/*": {"origins": "http://34.129.37.135:80"}}, supports_credentials=True)
+# Making changes here to fix bug in firefox logout
+# cors = CORS(app, resources={r"/*": {"origins": "http://34.129.37.135:80"}}, supports_credentials=True)
+cors = CORS(app, resources={r"/*": {
+  "origins": "http://34.129.37.135", # 
+  "methods": ["GET", "POST", "OPTIONS", "DELETE"],
+  "allow_headers": ["Content-Type", "Authorization"],
+  "supports_credentials": True
+}})
 server_session = Session(app)
 
 # Configure logging
 logging.basicConfig(filename='logs/server.log', level=logging.INFO, \
                     format='%(asctime)s %(levelname)s: %(message)s', datefmt='%m/%d/%Y %I:%M:%S %p')
+
+@app.route("/api/dashboard", methods=["GET"])
+def dashboard():
+  if not session.get("user_id"): return jsonify({"error": "Unauthorized"}), 401
+  " We are going to make changes to the database and incorporate those here and in device-map below"
+
+  return jsonify({
+    "dummy_data": "Remove later"
+  })
+
 
 @app.route("/api/device-map", methods=['GET'])
 def device_map():
