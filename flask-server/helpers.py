@@ -26,7 +26,7 @@ def get_user(username=None, id=None):
 def create_table():
   '''
     Grant privileges for user flask user by using $ sudo mysql
-    GRANT CREATE, ALTER, DROP, INSERT, UPDATE, DELETE, SELECT on iot.users TO 'flask'@'localhost' WITH GRANT OPTION;
+    GRANT CREATE, ALTER, DROP, INSERT, UPDATE, DELETE, SELECT, REFERENCE on iot.users TO 'flask'@'localhost' WITH GRANT OPTION;
   '''
 
   print("(Re)Create database table, select from the following options")
@@ -84,17 +84,5 @@ def create_table():
       cur.execute(q)
   else:
     print("Invalid selection")
-  '''
-  cur.execute("DROP TABLE IF EXISTS users;")
-  create_user_table = """ 
-  CREATE TABLE users (
-    id CHAR(32) PRIMARY KEY UNIQUE,
-    email VARCHAR(255) UNIQUE NOT NULL,
-    hashed_passwd VARCHAR(160) DEFAULT NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-  );
-  """
-  cur.execute(create_user_table)'
-  '''
   cnx.commit()
   db_terminate([cur], cnx)

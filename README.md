@@ -1,5 +1,6 @@
 # Problems / ToDo
-- [ ] Design and implement database TOP PRIORITY. Build the tools for database interaction.
+- [ ] Create table for licenses, track purchase count and date aquired. We will aggreagate total licenses per company from this table and track licenses in use else where, probably in the companie table directly as a function of the database.
+- [ ] List devices is cutting part of the cordinates off for some reason.
 - [ ] Create a simulation page for viewing the product without the need for logging in.
 - [ ] Make a script/system for creating .crt .key pairs uniquely so that they can be assigned to each client.
 - [ ] Establish correct file permissions with the above to impove security.

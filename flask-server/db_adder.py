@@ -1,55 +1,69 @@
 from werkzeug.security import generate_password_hash
 import helpers as do
+from mysql.connector import IntegrityError, Error
 import sys
+from tabulate import tabulate
 import uuid
 
-### THIS NEEDS WORK DONE ### 
+# Querys
+get_user_emails = ("SELECT email FROM users")
+get_user_ids = ("SELECT id FROM users")
+get_company_ids = ("SELECT id FROM companies")
+add_user = ("INSERT INTO users (id, email, hashed_passwd, company_id) "
+      "VALUES (%(id)s, %(email)s, %(password)s, %(company_id)s)")
+
+"""   CREATE USERS   """
 def create_user(cnx):
+  # Create cursors
   curA = cnx.cursor(buffered=True)
   curB = cnx.cursor(buffered=True)
 
-  # Ensure proposed UUID not already in use
+  # Get all user ids, emails
+  curA.execute(get_user_emails)
   curB.execute(get_user_ids)
-  id = None
-  unique = False
   user_ids = {row[0] for row in curB.fetchall()} # returns a set of id's for faster lookup - O(1) instead of O(n)
+  user_emails = {row[0] for row in curA.fetchall()}
+  
+  id = email = company_id = None
+  # Ensure new user id is unique
   while True:
     id = uuid.uuid4().hex
     print (user_ids, id)
     if id not in user_ids: break
 
-  # Get new user credentials from console.
+  # Ensure email not already in user table
+  while True:
+    email = input("Enter Email: ")
+    if email not in user_emails: break
+    else: print("Email already in use, contact system administrator or choose an alternative.")
+
+  # Get all company ids
+  curA.execute(get_company_ids)
+  company_ids = {row[0] for row in curA.fetchall()}
+
+  # Ensure valid company id
+  while True:
+    company_id = input("Enter your company id: ")
+    if company_id in company_ids: break
+    else: print("No company exists with that id.")
+
+  
+  # Create new user, will validate pasword strength later on the front end
   new_user = {
     'id': str(id),
-    'email': input("Enter Email: "),
-    'password': generate_password_hash(input('Enter password: '), "scrypt", salt_length=8)
+    'email': email,
+    'password': generate_password_hash(input('Enter password: '), "scrypt", salt_length=8),
+    'company_id': company_id,
   }
 
-  print(new_user['id'], f"is {len(new_user['id'])} long")
-
-  # Get all user emails
-  curA.execute(get_user_emails)
-
-  # If the table is empty this loop will not run
-  for email in curA:
-    if email[0] == new_user['email']:
-      print("Email already in use, aborting")
-      cnx.close()
-      sys.exit(1)
-    else:
-      curB.execute(add_user, new_user)
-
-  # Allow for empty table scenario
-  if curA.rowcount == 0:
-    curB.execute(add_user, new_user)
+  curB.execute(add_user, new_user)
+  cnx.commit()
+  do.db_terminate([curA, curB], cnx)
+  print("User added successfully.")
+  sys.exit(0)
 
 
-# Querys
-get_user_emails = ("SELECT email FROM users")
-get_user_ids = ("SELECT id FROM users")
-add_user = ("INSERT INTO users (id, email, hashed_passwd) "
-      "VALUES (%(id)s, %(email)s, %(password)s)")
-
+"""   LIST COMPANYS   """
 def get_companys(cnx):
   cur = cnx.cursor(buffered=True)
   cur.execute(("SELECT id, name FROM companies"))
@@ -58,79 +72,172 @@ def get_companys(cnx):
     cur.close()
     return None
   else:
-    ids = {row[0] for row in cur.fetchall()}
-    print(ids)
-
+    companies = []
+    headers = ["Company", "ID"]
+    for row in cur.fetchall():
+      companies.append([row[1], row[0]])
+    table = tabulate(companies, headers=headers, tablefmt="psql")
+    print(f"\n{table}\n")
   cur.close()
 
 
-# Create new company
+"""   CREATE A COMPANY   """
 def create_company(cnx):
-  create_query = """
-    CREATE TABLE companies (
-    id CHAR(32) PRIMARY KEY UNIQUE,
-    name VARCHAR(100) UNIQUE NOT NULL,
-    latitude CHAR(13) NOT NULL,
-    longitude CHAR(13) NOT NULL,
-    licenses INT DEFAULT NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-  );
-  """
-  
   # Get current companies
   curA = cnx.cursor(buffered=True)
-  # curB = cnx.cursor(buffered=True)
-  
   add_company = ("INSERT INTO companies (id, name, latitude, longitude, licenses) "
       "VALUES (%(id)s, %(name)s, %(latitude)s, %(longitude)s, %(licenses)s)")
+  
+  # Print the company list
+  get_companys(cnx)
+  print("Make sure the company is not already in the list above.\n")
+
+  # Ensure company id is unique
+  curA.execute(get_company_ids)
+  company_ids = {row[0] for row in curA.fetchall()}
+  while True:
+    id = uuid.uuid4().hex
+    if id not in company_ids: break
 
   new_company = {
-    "id" : str(uuid.uuid4().hex),
-    "name": "Wilcania Council",
-    "latitude": "-31.558335",
-    "longitude": "143.377734",
-    "licenses": 50
+    "id" : id,
+    "name": input("Enter company name: "),
+    "latitude": input("Enter Latitude: "),
+    "longitude": input("Enter Longitude: "),
+    "licenses": int(x) if (x := input("Enter number of licenses: ")) else None,
   }
-  
-  if not get_companys(cnx):
+    
+  try:
     curA.execute(add_company, new_company)
     cnx.commit()
-    curA.close()
-  else:
-    # Handle the scenario where there are companies
-    pass
+    print(f"\n{new_company['name']} successfully added with id  {new_company['id']}\n")
+  except IntegrityError:
+    print("\n Error: Duplicate company name exists in db.\n")
   
+  curA.close()
 
 
-print("Welcome to the db entry adder. You need to know the company id of the company that you want to add entrys to.")
+"""   ADD DEVICES   """
+def add_device(cnx):
+  get_companys(cnx)
+  # Get cursor
+  cur = cnx.cursor(buffered=True)
+  company_name = ''
+  while not company_name:
+    company_id = input("Enter company id you wish to add devices too: ")
+    cur.execute("SELECT id, name, licenses FROM companies WHERE id = %s", (company_id,))
+    if cur.rowcount == 0:
+      print("\nCompany not found\n")
+    else:
+      for row in cur:
+        company_name = row[1]
+        licenses = row[2]
+
+  try:
+    while licenses:
+      print(f"Adding devices to {company_name} with {licenses} remaining licenses")
+      # Aggregate lists of mac addresses and names
+      imeis = names = []
+      cur.execute("SELECT imei, name FROM devices WHERE company_id = %s", (company_id,))
+      if cur.rowcount == 0: pass
+      else:
+        for row in cur:
+          imeis.append(row[0])
+          names.append(row[1])
+
+      while (imei := input('Enter IMEI address of device: ')) in imeis: pass
+      while (name := input('Enter Asset name for device: ')) in names: pass
+
+      device = {
+        'imei': imei,
+        'name': name,
+        'latitude': input('Enter Latitude: '),
+        'longitude': input('Enter Longitude: '),
+        'company_id': company_id,
+        'is_active': 1,
+      }
+
+      # Execute the device add, update license count
+      add_device = ("INSERT INTO devices (imei, name, latitude, longitude, company_id, is_active) "
+        "VALUES (%(imei)s, %(name)s, %(latitude)s, %(longitude)s, %(company_id)s, %(is_active)s)")
+
+      try:
+        cur.execute(add_device, device)
+        licenses -= 1
+        cur.execute("UPDATE companies SET licenses = %s WHERE id = %s", (licenses, company_id))
+      except Error as e:
+        print(f"Error occurred during database write: {e}")
+
+      decide = input("Press Enter to add another or q to quit: ")
+      if decide == 'q': 
+        cnx.commit()
+        do.db_terminate([cur], cnx)
+        sys.exit(0)
+  except KeyboardInterrupt:
+    cnx.commit()
+    do.db_terminate([cur], cnx)
+    sys.exit(0)
+
+
+"""   LIST DEVICES FOR A COMPANY   """
+def device_list(cnx):
+  get_companys(cnx)
+  target = input("Enter target Company ID from the list above: ")
+  cur = cnx.cursor(buffered=True)
+
+  try:
+    cur.execute("SELECT * FROM devices WHERE company_id = %s", (target,))
+    if cur.rowcount == 0: 
+      print("No devices in table")
+      cur.close()
+      return None
+    else:
+      devices = []
+      headers = ['imei', 'name', 'latitude', 'longitude', 'company_id', 'is_active', 'created']
+      for row in cur.fetchall():
+        devices.append(list(row))
+      table = tabulate(devices, headers=headers, tablefmt="psql")
+      print(f"\n{table}\n")
+    cur.close()
+  except Error as e:
+    print("Error listing devices: {e}")
+
+"""
+    Program Entry.
+"""
+
+print("Welcome to the db entry adder. You need to know the id of the company that you want to add entrys to.")
 print("If said company does not currently exist you will need to create it first.\n")
 
 selector = ''
 cnx = do.db_connect()
 
-while selector != 'q':
-  print("Select an option from the following:\nl - get all company names\nc - create a company\nu - add a user\nd - add a device\nq - quit\n")
-  selector = input("Enter your selection: ")
-  
-  match selector:
-    case 'l':
-      print("list companys")
-      get_companys(cnx)
-    case 'c':
-      print("create company")
-      create_company(cnx)
-    case 'u':
-      print("add user")
-    case 'd':
-      print("add device")
-    case _:
-      print("Invalid input")
+try:
+  while selector != 'q':
+    print("""Select an option from the following:\nl - Get all company names\nc - Create a company\nu - Add a user\n\
+a - Add a device\nd - Get list of devices for a company\nq - Quit\n""")
+    selector = input("Enter your selection: ")
     
-
-
-# Close cursor and connection
-# cnx.commit()
-# curA.close()
-# curB.close()
-
-cnx.close()
+    match selector:
+      case 'l':
+        # List companys
+        get_companys(cnx)
+      case 'c':
+        # Create company
+        create_company(cnx)
+      case 'u':
+        # Add user
+        create_user(cnx)
+      case 'a':
+        # Add device")
+        add_device(cnx)
+      case 'd':
+        # List devices for a company
+        device_list(cnx)
+      case 'q':
+        print('Exiting')
+      case _:
+        print("Invalid input")
+  cnx.close()
+except KeyboardInterrupt:
+  cnx.close()
