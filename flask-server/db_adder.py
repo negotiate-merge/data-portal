@@ -1,5 +1,5 @@
 from werkzeug.security import generate_password_hash
-import helpers as do
+import helpers as db
 from mysql.connector import IntegrityError, Error
 import sys
 from tabulate import tabulate
@@ -58,7 +58,7 @@ def create_user(cnx):
 
   curB.execute(add_user, new_user)
   cnx.commit()
-  do.db_terminate([curA, curB], cnx)
+  db.db_terminate([curA, curB], cnx)
   print("User added successfully.")
   sys.exit(0)
 
@@ -171,11 +171,11 @@ def add_device(cnx):
       decide = input("Press Enter to add another or q to quit: ")
       if decide == 'q': 
         cnx.commit()
-        do.db_terminate([cur], cnx)
+        db.db_terminate([cur], cnx)
         sys.exit(0)
   except KeyboardInterrupt:
     cnx.commit()
-    do.db_terminate([cur], cnx)
+    db.db_terminate([cur], cnx)
     sys.exit(0)
 
 
@@ -210,7 +210,7 @@ print("Welcome to the db entry adder. You need to know the id of the company tha
 print("If said company does not currently exist you will need to create it first.\n")
 
 selector = ''
-cnx = do.db_connect()
+cnx = db.db_connect()
 
 try:
   while selector != 'q':

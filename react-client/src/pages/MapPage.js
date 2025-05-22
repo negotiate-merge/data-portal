@@ -25,6 +25,10 @@ const MapPage = () => {
     fetchDevices();
   }, []);
 
+  console.log("Data:", data);
+  console.log("Lat:", data.lat);
+  console.log("Lng:", data.lng);
+
   // console.log("Device ID's:", data.map(point => point.devId));
   // console.log('user is:', user);
 
@@ -33,17 +37,21 @@ const MapPage = () => {
   const api_key = process.env.REACT_APP_MAPS_API_KEY;
   const map_id = "1a3de3b04bbcad29";
 
+  if (!data || !data.lat || !data.lng) {
+    return <div>Loading map data...</div>
+  }
+
   return (
     <APIProvider apiKey={api_key}>
       <div className='map-container'>
         <Map
-          defaultZoom={16}
-          defaultCenter={{ lat: -31.5566128, lng: 143.3754706 }}
+          defaultZoom={14}
+          defaultCenter={{ lat: parseFloat(data.lat), lng: parseFloat(data.lng) }}
           mapId={map_id}
           gestureHandling={'greedy'}
           disableDefaultUI={false}
         >
-          {data.map((point, index) => (
+          {data.devices.map((point, index) => (
             <Marker key={point.devId || index} point={point} />
           )
           )}

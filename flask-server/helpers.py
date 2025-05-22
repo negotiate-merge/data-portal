@@ -13,7 +13,7 @@ def get_user(username=None, id=None):
   cnx = db_connect()
   cur = cnx.cursor(buffered=True)
   
-  user_query = ("SELECT id, email, hashed_passwd FROM users WHERE email = %(user_name)s")
+  user_query = ("SELECT id, email, hashed_passwd, company_id FROM users WHERE email = %(user_name)s")
   userID_query = ("SELECT id, email FROM users WHERE id = %(id)s")
   
   if username: cur.execute(user_query, {'user_name': username})
@@ -21,6 +21,35 @@ def get_user(username=None, id=None):
   row = cur.fetchone()
   db_terminate([cur], cnx)
   return row
+
+
+def get_company(company_id):
+  cnx = db_connect()
+  cur = cnx.cursor(buffered=True)
+  
+  company_query = ("SELECT name, latitude, longitude, licenses FROM companies WHERE id = %(company_id)s")
+
+  cur.execute(company_query, {"company_id": company_id})
+  row = cur.fetchone()
+  db_terminate([cur], cnx)
+  return row
+
+
+
+def get_devices(user_id=None):
+  cnx = db_connect()
+  cur = cnx.cursor(buffered=True)
+
+  device_query = (
+    """
+      SELECT d.* FROM devices d JOIN users u on d.company_id = u.company_id WHERE u.id = %(user_id)s
+    """
+  )
+
+  cur.execute(device_query, {'user_id': user_id})
+  rows = cur.fetchall()
+  return rows
+  
 
 
 def create_table():

@@ -1,11 +1,12 @@
 import csv
 import os
 import logging
+from datetime import datetime
 from flask import Flask, request, session, send_file, jsonify 
 from flask_session import Session
 from flask_cors import CORS
 from config import ApplicationConfig
-import helpers as do
+import helpers as db
 from werkzeug.security import check_password_hash
 
 app = Flask(__name__)
@@ -49,39 +50,72 @@ def dashboard():
 
 @app.route("/api/device-map", methods=['GET'])
 def device_map():
+  if not (user := session.get("user_id")): return jsonify({"error": "Unauthorized"}), 401
   '''
-    What really will happen here is we will get an identifier from the session and 
-    use that to detirmine what device data to retrieve. That will be pulled from db.
-    Then we use that information to pull the relevant data files and return that.
-    devId, siteName, lat, lng will come from the db, data will come from the files.
+  [('863663062798815', 'STA1', '-33.8073128', '151.2510467', 'c70b8cb72ea84498bc3cbd4850f68b18', 1, datetime.datetime(2025, 5, 2, 5, 43, 36)), 
+   ('863663062798816', 'STA2', '-33.8080089', '151.2486871', 'c70b8cb72ea84498bc3cbd4850f68b18', 1, datetime.datetime(2025, 5, 2, 5, 44, 17))]
   '''
-  if not session.get("user_id"): return jsonify({"error": "Unauthorized"}), 401
-  data = []
-  for d in ["a84041e08189aaaa", "a84041e08189bbbb"]:
+  company = db.get_company(session.get("company_id"))
+  payload = {
+    "company": company[0],
+    "lat": company[1],
+    "lng": company[2],
+    "licenses": company[3],
+    "devices": [],
+  }
+  
+  
+  # Get lastest device data for all devices attached to the users company   
+  devices_raw = db.get_devices(user)
+  for d in devices_raw: # TODO If there are no devices, this may error at present
+    # Get valid device log files
+    folder_path = f"/opt/data/{d[0]}"
     try:
-      with open(f"/opt/data/{d}.csv", "r") as f:
+      # Get files from device directory
+      files = [
+        f for f in os.listdir(folder_path)
+        if f.endswith(".csv")
+      ]
+
+      dated_files = []
+      for filename in files:
+        try:
+          date_str = filename.replace(".csv", "")
+          date_obj = datetime.strptime(date_str, "%Y-%m-%d")
+          dated_files.append((date_obj, filename))
+        except ValueError:
+          continue # Skip invalid file
+
+      # Get the latest log file
+      if dated_files:
+        latest_file = max(dated_files, key=lambda x: x[0])[1]
+        latest_file_path = os.path.join(folder_path, latest_file)
+
+      with open(latest_file_path, "r") as f:
         c = csv.reader(f)
         last_line = None
         for row in c:
           last_line = row
         device_info = {
-          "devId": f"{d}",
-          "siteName": "Test site 1" if d == "a84041e08189aaaa" else "Test site 2",
-          "lat": "-31.558335" if d == "a84041e08189aaaa" else "-31.560691",
-          "lng": "143.377734" if d == "a84041e08189aaaa" else "143.373465",
+          "devId": f"{d[0]}",
+          "siteName": f"{d[1]}",
+          "lat": f"{d[2]}",
+          "lng": f"{d[3]}",
           "data": {
             "pressure": last_line[1],
             "flow": last_line[2],
             "date": last_line[0],
           }       
         }
-        data.append(device_info)
+        payload["devices"].append(device_info)
     except Exception as e:
       #print("Error encountered trying to read device files", e)
       # logging.error("device_map: Error trying to read device file %(d)s.csv")
-      app.logger.warning(f'device_map: Error trying to read device file {d}.csv')
+      app.logger.warning(f'device_map: Error trying to read device file {latest_file_path}.csv')
 
-  return jsonify(data)
+  print(payload)
+
+  return jsonify(payload)
 
 
 @app.route("/api/site-data/<id>", methods=["GET"])
@@ -111,26 +145,23 @@ def login():
    if request.method == "POST":
       username = request.json["email"]
       password = request.json["password"]
-      user = do.get_user(username)
+      user = db.get_user(username)
       forwarded_for = request.headers.get('X-Forwarded-For')
       client_ip = forwarded_for.split(',')[0] if forwarded_for else request.remote_addr
       
+      # Validate user
       if user == None:
         return jsonify({"error": "Invalid username"}), 401
-
-      # Handle invalid password
       if not check_password_hash(user[2], password):
         return jsonify({"error": "Invalid password"}), 401
 
-      # user[0] = id    user[1] = email     user[2] = hashed_passwd
-
-      session["user_name"] = user[1]
+      # Flask session variables
       session["user_id"] = user[0]
-      # logging.info('login: %(username)s logged in from %(client_ip)s')
+      session["user_name"] = user[1]
+      session["company_id"] = user[3]
       app.logger.info(f'login: {username} logged in from {client_ip}')
-      # print(f"session user = {session['user_name']}")
-      # print(f"session user id = {session['user_id']}")
 
+      # For react app localStorage usage
       return jsonify({
         "id": user[0],
         "email": user[1],
@@ -155,4 +186,4 @@ def logout():
   
 
 if __name__ == "__main__":
-  app.run(host="127.0.0.1", port=5000) # debug=True, 
+  app.run(host="127.0.0.1", port=5000, debug=True) # debug=True, 
