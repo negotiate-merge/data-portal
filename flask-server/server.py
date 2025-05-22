@@ -51,10 +51,6 @@ def dashboard():
 @app.route("/api/device-map", methods=['GET'])
 def device_map():
   if not (user := session.get("user_id")): return jsonify({"error": "Unauthorized"}), 401
-  '''
-  [('863663062798815', 'STA1', '-33.8073128', '151.2510467', 'c70b8cb72ea84498bc3cbd4850f68b18', 1, datetime.datetime(2025, 5, 2, 5, 43, 36)), 
-   ('863663062798816', 'STA2', '-33.8080089', '151.2486871', 'c70b8cb72ea84498bc3cbd4850f68b18', 1, datetime.datetime(2025, 5, 2, 5, 44, 17))]
-  '''
   company = db.get_company(session.get("company_id"))
   payload = {
     "company": company[0],
@@ -64,33 +60,12 @@ def device_map():
     "devices": [],
   }
   
-  
   # Get lastest device data for all devices attached to the users company   
   devices_raw = db.get_devices(user)
   for d in devices_raw: # TODO If there are no devices, this may error at present
-    # Get valid device log files
-    folder_path = f"/opt/data/{d[0]}"
+    print("d from device-map", d)
     try:
-      # Get files from device directory
-      files = [
-        f for f in os.listdir(folder_path)
-        if f.endswith(".csv")
-      ]
-
-      dated_files = []
-      for filename in files:
-        try:
-          date_str = filename.replace(".csv", "")
-          date_obj = datetime.strptime(date_str, "%Y-%m-%d")
-          dated_files.append((date_obj, filename))
-        except ValueError:
-          continue # Skip invalid file
-
-      # Get the latest log file
-      if dated_files:
-        latest_file = max(dated_files, key=lambda x: x[0])[1]
-        latest_file_path = os.path.join(folder_path, latest_file)
-
+      latest_file_path = db.get_file_path(d[0])
       with open(latest_file_path, "r") as f:
         c = csv.reader(f)
         last_line = None
@@ -109,21 +84,19 @@ def device_map():
         }
         payload["devices"].append(device_info)
     except Exception as e:
-      #print("Error encountered trying to read device files", e)
-      # logging.error("device_map: Error trying to read device file %(d)s.csv")
       app.logger.warning(f'device_map: Error trying to read device file {latest_file_path}.csv')
-
-  print(payload)
-
   return jsonify(payload)
 
 
 @app.route("/api/site-data/<id>", methods=["GET"])
 def site_data(id):
   if not session.get("user_id"): return jsonify({"error": "Unauthorized"}), 401
-
+  
+  print('id', id)
   # Return site specific data set
-  csvfile = f"/opt/data/{id}.csv"
+  csvfile = db.get_file_path(id) # Currently the latest file in the directory
+
+
   if os.path.exists(csvfile):
     # print("Valid file found returning data for {}".format(id))
     return send_file(
@@ -132,7 +105,7 @@ def site_data(id):
       as_attachment=False
     )
   else: 
-    print(f"file with id {type(id)} not found")
+    # print(f"file with id {type(id)} not found")
     app.logger.warning(f'site_data: file with id {id} not found')
     return jsonify({"error": "Resource not found"}), 404
 
@@ -186,4 +159,4 @@ def logout():
   
 
 if __name__ == "__main__":
-  app.run(host="127.0.0.1", port=5000, debug=True) # debug=True, 
+  app.run(host="127.0.0.1", port=5000) # debug=True, 

@@ -1,4 +1,6 @@
 import mysql.connector
+import os
+from datetime import datetime
 
 def db_connect():
   return mysql.connector.connect(option_files='/etc/mysql/connectors.cnf')
@@ -49,6 +51,33 @@ def get_devices(user_id=None):
   cur.execute(device_query, {'user_id': user_id})
   rows = cur.fetchall()
   return rows
+
+
+def get_file_path(device):
+  folder_path = f"/opt/data/{device}"
+  try:
+    # Get files from device directory
+    files = [
+      f for f in os.listdir(folder_path)
+      if f.endswith(".csv")
+    ]
+
+    dated_files = []
+    for filename in files:
+      try:
+        date_str = filename.replace(".csv", "")
+        date_obj = datetime.strptime(date_str, "%Y-%m-%d")
+        dated_files.append((date_obj, filename))
+      except ValueError:
+        continue # Skip invalid file
+
+    # Get the latest log file
+    if dated_files:
+      latest_file = max(dated_files, key=lambda x: x[0])[1]
+      latest_file_path = os.path.join(folder_path, latest_file)
+  except Exception as e:
+    return e
+  return latest_file_path
   
 
 
