@@ -95,7 +95,7 @@ def site_data(id):
   if not session.get("user_id"): return jsonify({"error": "Unauthorized"}), 401
   # Return site specific data set
   csvfile = db.get_file_path(id) # Currently the latest file in the directory
-  print(f"reading data from {csvfile}")
+  # print(f"reading data from {csvfile}")
 
   if os.path.exists(csvfile):
     # print("Valid file found returning data for {}".format(id))
@@ -109,6 +109,23 @@ def site_data(id):
     app.logger.warning(f'site_data: file with id {id} not found')
     return jsonify({"error": "Resource not found"}), 404
 
+
+@app.route("/api/example-site", methods=["POST"])
+def example_site():
+  user = db.get_user('example')
+  forwarded_for = request.headers.get('X-Forwarded-For')
+  client_ip = forwarded_for.split(',')[0] if forwarded_for else request.remote_addr
+
+  # Flask session variables
+  session["user_id"] = user[0]
+  session["user_name"] = user[1]
+  session["company_id"] = user[3]
+  app.logger.info(f'login: demo-user logged in from {client_ip}')
+
+  return jsonify({
+    "id": user[0],
+    "email": user[1],
+  })
 
 
 @app.route("/api/login", methods=["POST"])

@@ -8,7 +8,7 @@ To stop the backend service and the flask server for development purposes
 `$ cd /home/nigel/data-portal/react-client`
 `$ npm run build`
 `$ cd ~/`
-`$ ./deploy`
+`$ sudo ./deploy`
 
 
 

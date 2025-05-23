@@ -29,20 +29,29 @@ const LoginPage = () => {
     }
   }
 
-  /*
-  if (user) return (
-    <div>
-      <h3>You are logged in as {user.email}</h3>
-      <p>We can make a dashboard here displaying some useful stats. Things like [average, median, peak] pressure/flow etc.</p>
-    </div>
-  )
-  */
+  const logInExample = async () => {
+    try{
+      const resp = await httpClient.post('/example-site');
+      setUser(resp.data)
+      localStorage.setItem("user", JSON.stringify(resp.data));
+      window.location.href = "/map";
+    } catch (err) {
+      console.error("Full error object:", err);
+      console.error("Response object:", err.response);
+      console.error("Status:", err.response?.status);
+
+      if (err.response?.status === 401) {
+        alert("Invalid Credentials");
+      } else {
+        console.error("Login error:", err);
+      }
+    }
+  }
 
   if (!user) {
-  
     return (
       <div className='center'>
-        <h1>Log in to Data Store</h1>
+        <h1 style={{ marginBottom: "12px" }}>Log in to Pipe Metrix</h1>
         <form
           onKeyDown={(e) => {
             if (e.key === 'Enter') {
@@ -60,6 +69,11 @@ const LoginPage = () => {
           <button id="login-btn" className='btn btn-dark space' type="button" 
             onClick={() => logInUser()}>Login</button>
         </form>
+          <div style={{ marginTop: "20px" }}>
+            <p style={{ marginBottom: "0" }}>Take a look at the Demonstration</p>
+            <button id="example" className='btn btn-secondary space' type="button" 
+            onClick={() => logInExample()}>Login as guest</button>
+          </div>
       </div>
     );
   }

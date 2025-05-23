@@ -12,6 +12,7 @@ const DashBoard = () => {
     <>
       <div>
         <h1>Dashboard</h1>
+        <p>Under construction</p>
         <div className="dashboard-container">
           {[...Array(6)].map((_, index) => (
             <div key={index} className="dashboard-graph">
