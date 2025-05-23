@@ -12,18 +12,16 @@ from werkzeug.security import check_password_hash
 app = Flask(__name__)
 app.config.from_object(ApplicationConfig)
 
-"""
-  This part here might not be needed but is left in for now.
-  It is part of a cs50 project that is brought in as boiler plate.
-
-# Ensure responses aren't cached
+''' Ensure responses aren't cached
+    Maybe make this more targeted in the future. When the app starts to get a little bigger.
+'''
 @app.after_request
 def after_request(response):
   response.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
   response.headers["Expires"] = 0
   response.headers["Pragma"] = "no-cache"
   return response
-"""
+
 # Making changes here to fix bug in firefox logout
 # cors = CORS(app, resources={r"/*": {"origins": "http://34.129.37.135:80"}}, supports_credentials=True)
 cors = CORS(app, resources={r"/*": {
@@ -38,6 +36,7 @@ server_session = Session(app)
 logging.basicConfig(filename='logs/server.log', level=logging.INFO, \
                     format='%(asctime)s %(levelname)s: %(message)s', datefmt='%m/%d/%Y %I:%M:%S %p')
 
+''' This is under construction, I do not remember starting it. Will get back to it later.'''
 @app.route("/api/dashboard", methods=["GET"])
 def dashboard():
   if not session.get("user_id"): return jsonify({"error": "Unauthorized"}), 401
@@ -62,40 +61,41 @@ def device_map():
   
   # Get lastest device data for all devices attached to the users company   
   devices_raw = db.get_devices(user)
-  for d in devices_raw: # TODO If there are no devices, this may error at present
-    print("d from device-map", d)
-    try:
-      latest_file_path = db.get_file_path(d[0])
-      with open(latest_file_path, "r") as f:
-        c = csv.reader(f)
-        last_line = None
-        for row in c:
-          last_line = row
-        device_info = {
-          "devId": f"{d[0]}",
-          "siteName": f"{d[1]}",
-          "lat": f"{d[2]}",
-          "lng": f"{d[3]}",
-          "data": {
-            "pressure": last_line[1],
-            "flow": last_line[2],
-            "date": last_line[0],
-          }       
-        }
-        payload["devices"].append(device_info)
-    except Exception as e:
-      app.logger.warning(f'device_map: Error trying to read device file {latest_file_path}.csv')
-  return jsonify(payload)
+  try:
+    for d in devices_raw: # TODO If there are no devices, this may error at present
+      # print("d from device-map", d)
+      try:
+        latest_file_path = db.get_file_path(d[0])
+        with open(latest_file_path, "r") as f:
+          c = csv.reader(f)
+          last_line = None
+          for row in c:
+            last_line = row
+          device_info = {
+            "devId": f"{d[0]}",
+            "siteName": f"{d[1]}",
+            "lat": f"{d[2]}",
+            "lng": f"{d[3]}",
+            "data": {
+              "pressure": last_line[1],
+              "flow": last_line[2],
+              "date": last_line[0],
+            }       
+          }
+          payload["devices"].append(device_info)
+      except Exception as e:
+        app.logger.warning(f'device_map: Error trying to read device file {latest_file_path}.csv')
+    return jsonify(payload)
+  except Exception as e:
+    return jsonify({"info:": "User's company has no devices"}), 200
 
 
 @app.route("/api/site-data/<id>", methods=["GET"])
 def site_data(id):
   if not session.get("user_id"): return jsonify({"error": "Unauthorized"}), 401
-  
-  print('id', id)
   # Return site specific data set
   csvfile = db.get_file_path(id) # Currently the latest file in the directory
-
+  print(f"reading data from {csvfile}")
 
   if os.path.exists(csvfile):
     # print("Valid file found returning data for {}".format(id))
@@ -159,4 +159,4 @@ def logout():
   
 
 if __name__ == "__main__":
-  app.run(host="127.0.0.1", port=5000) # debug=True, 
+  app.run(host="127.0.0.1", port=5000) # debug=True
