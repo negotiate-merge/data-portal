@@ -4,7 +4,7 @@ import { timeFormat } from 'd3';
 
 
 const createGraph = (data, containerId, metric, title, color="steelblue") => {
-  const margin = { top: 50, right: 30, bottom: 75, left: 35 }; // bottom previously 55
+  const margin = { top: 50, right: 30, bottom: 50, left: 40 }; // bottom previously 55
   const width = 1000 - margin.left - margin.right;
   const height = 400 - margin.top - margin.bottom;
 
@@ -42,13 +42,13 @@ const createGraph = (data, containerId, metric, title, color="steelblue") => {
     .domain([0, Math.ceil(maxValue)])  // Round the highest reading up to nearest integer
     .range([height, 0]);
 
-  console.log("x domain:", d3.min(data, d => d.Time), d3.max(data, d => d.Time));
-  console.log("y domain:", 0, Math.ceil(d3.max(data, d => d[metric])));
+  // console.log("x domain:", d3.min(data, d => d.Time), d3.max(data, d => d.Time));
+  // console.log("y domain:", 0, Math.ceil(d3.max(data, d => d[metric])));
 
   const xAxis = d3.axisBottom(xScale)
     .ticks(data.length)
-    .tickValues(data.map(d => d.Time))    // This fixed the missing tick from the end of the graph
-    .tickFormat(d3.timeFormat("%H:%M"));
+    .tickValues(xScale.ticks(d3.timeHour.every(1)))
+    .tickFormat(d3.timeFormat("%I %p"));
 
   svg
     .append("g")
@@ -59,25 +59,19 @@ const createGraph = (data, containerId, metric, title, color="steelblue") => {
     .attr("transform", "rotate(-45)")
     .style("text-anchor", "end"); 
 
+  // Add labels x axis
+  svg.append("text")
+    .attr("x", width / 2)
+    .attr("y", height + margin.bottom - 5)
+    .style("text-anchor", "middle")
+    .text(date);
+
   const yAxis = d3.axisLeft(yScale)
     .ticks(5);  // Ticks need further configuration
   svg.append("g")
     .attr("class", "y-axis")  // .select(".y-axis")
     //.style("transform", "translateX(0px)")
     .call(yAxis);
-
-  // Add labels x axis
-  svg.append("text")
-    .attr("x", width / 2)
-    .attr("y", height + margin.bottom - 30)
-    .style("text-anchor", "middle")
-    .text("Time");
-
-  svg.append("text")
-    .attr("x", width / 2)
-    .attr("y", height + margin.bottom - 10)
-    .style("text-anchor", "middle")
-    .text(date);  // Make this dynamic
 
   // Add label y axis
   svg.append("text")
@@ -106,9 +100,12 @@ const LineGraph = ({ device }) => {
     // const svg = d3.select(svgRef.current);
     d3.csv(`/api/site-data/${device}`).then(function (data) { 
 
+      const parseDate = d3.timeParse("%Y-%m-%d %H:%M:%S")
+      
       // Change number strings to numbers
       data.forEach(d => {
-        d.Time = new Date(d.Time);
+        d.Time = parseDate(d.Time);//new Date(d.Time);
+        console.log(d.Time);
         d.Pressure = +d.Pressure; // + prepended converts a string to a number
         d.Flow = +d.Flow;
       })
