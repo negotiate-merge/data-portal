@@ -12,8 +12,6 @@ const DevicePage = () => {
     <>
       <div className="device-page">
         <h3>Sewer Assest: { siteName }</h3>
-        <p>Numbers for pressure and flow are populated currently as dummy figures for voltage that would be read on the sensor. 
-        </p>
         <LineGraph device={devId}/>
       </div>
     </>
