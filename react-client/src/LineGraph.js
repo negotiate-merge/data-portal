@@ -5,7 +5,7 @@ import { timeFormat } from 'd3';
 
 const createGraph = (data, containerId, metric, title, color="steelblue") => {
   const margin = { top: 50, right: 30, bottom: 50, left: 40 }; // bottom previously 55
-  const width = 1000 - margin.left - margin.right;
+  const width = 800 - margin.left - margin.right;
   const height = 400 - margin.top - margin.bottom;
 
   const maxValue = d3.max(data, d => d[metric]);
@@ -19,11 +19,25 @@ const createGraph = (data, containerId, metric, title, color="steelblue") => {
   // Create svg element, set up sizes
   const svg = d3.select(`#${containerId}`)
     .append("svg")
+    .attr("viewBox", `0 0 ${width + margin.left + margin.right} ${height + margin.top + margin.bottom}`)
+    .attr("preserveAspectRatio", "xMidYMid meet")
+    .style("width", "100%")
+    .style("height", "auto")
+    .attr("class", "graph")
+    .style("max-width", "100%")
+    .append("g")
+    .attr("transform", `translate(${margin.left},${margin.top})`);
+
+/*
+  // Create svg element, set up sizes
+  const svg = d3.select(`#${containerId}`)
+    .append("svg")
     .attr("width", width + margin.left + margin.right)
     .attr("height", height + margin.top + margin.bottom)
     .attr("class", "graph")
     .append("g")
     .attr("transform", `translate(${margin.left},${margin.top})`);
+*/
 
   // Graph Title
   svg.append("text")
@@ -211,9 +225,14 @@ const LineGraph = ({ device }) => {
 
       // Remove any svg elements from the dom or page?
       d3.selectAll("svg").remove();
-      
       createGraph(data, "pressure-container", "Pressure", "Pressure");
       createGraph(data, "flow-container", "Flow", "Flow");
+
+      const containers = document.getElementsByClassName("container");
+      for (let i=0; i<containers.length; i++) {
+        containers[i].classList.add("g-container");
+        containers[i].classList.remove("container");
+      }
 
     })
   }, []); // Removed data as a dependency

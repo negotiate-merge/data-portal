@@ -23,7 +23,12 @@
 }
 
 .device-page {
-  margin: 10px 0 0 50px;
+  margin: 10px 0 0 0;
+}
+
+.g-container {
+  margin-left: 8px;
+  margin-right: 8px;
 }
 
 .graph-heading {
@@ -35,17 +40,6 @@ rect {
   fill-opacity: 0;
   stroke-opacity: 0;
   /* z-index: 1; */
-}
-
-.claude-tooltip { /* From Claude */
-  position: absolute;  /* This is crucial! */
-  background-color: rgba(0, 0, 0, 0.8);
-  color: white;
-  padding: 8px;
-  border-radius: 4px;
-  font-size: 12px;
-  pointer-events: none;
-  z-index: 1000;
 }
 
 .d3-tooltip {
@@ -98,11 +92,11 @@ nav * {
   align-items: stretch;
   gap: 2rem;
   padding: 0 1rem;
-  height: 58px;
+  height: 50px;
 }
 
 .site-title {
-  font-size: 2rem;
+  font-size: 1.5rem;
 }
 
 .nav ul {
