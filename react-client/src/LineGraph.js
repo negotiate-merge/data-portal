@@ -25,11 +25,6 @@ const createGraph = (data, containerId, metric, title, color="steelblue") => {
     .append("g")
     .attr("transform", `translate(${margin.left},${margin.top})`);
 
-  // Create tooltip dic
-  const tooltip = d3.select("body")
-    .append("div")
-    .attr("class", "tooltip");
-
   // Graph Title
   svg.append("text")
     .attr("x", (width / 2))
@@ -137,6 +132,17 @@ const createGraph = (data, containerId, metric, title, color="steelblue") => {
     .attr("stroke-width", 3)
     .attr("d", myLine);
 
+
+  /* TOOL TIP */
+  // Create tooltip div
+  const svgContainer = d3.select(`#${containerId}`)
+    .style("position", "relative");
+  
+  svgContainer.select(".d3-tooltip").remove();
+  const tooltip = svgContainer
+    .append("div")
+    .attr("class", "d3-tooltip");
+
   // Add circle element
   const circle = svg.append("circle")
     .attr("r", 0)
@@ -174,7 +180,7 @@ const createGraph = (data, containerId, metric, title, color="steelblue") => {
     .style("display", "block")
     .style("left", `${xPos + 100}px`)
     .style("top", `${yPos + 50}px`)
-    .html(`<strong>Time:</strong> ${d.Time.toLocaleTimeString("en-US")}<br><strong>${metric}:</strong> ${d[metric] !== undefined ? (d[metric]).toFixed(0) + (metric === "Pressure" ? "Psi" : "m3/s") : 'N/A'}`);
+    .html(`<strong>Time:</strong> ${d.Time.toLocaleTimeString("en-US")}<br><strong>${metric}:</strong> ${d[metric] !== undefined ? (d[metric]).toFixed(2) + (metric === "Pressure" ? "Psi" : "m3/s") : 'N/A'}`);
   });
 
   // Listening rectangle mouse leave function
@@ -199,9 +205,8 @@ const LineGraph = ({ device }) => {
       // Change number strings to numbers
       data.forEach(d => {
         d.Time = parseDate(d.Time);//new Date(d.Time);
-        console.log(d.Time);
-        d.Pressure = +d.Pressure; // + prepended converts a string to a number
-        d.Flow = +d.Flow;
+        d.Pressure = +d.Pressure * 2.9; // 14.5(psi) / 5 = 2.9 as a ratio of volts to psi
+        d.Flow = +d.Flow * 0.6;         // 3 m3/s / 5 = 0.6 as a ratio of volts to m3/s
       })
 
       // Remove any svg elements from the dom or page?

@@ -31,13 +31,24 @@
 }
 
 rect {
-  pointer-events: absolute;
+  pointer-events: all;
   fill-opacity: 0;
   stroke-opacity: 0;
-  z-index: 1;
+  /* z-index: 1; */
 }
 
-.tooltip {
+.claude-tooltip { /* From Claude */
+  position: absolute;  /* This is crucial! */
+  background-color: rgba(0, 0, 0, 0.8);
+  color: white;
+  padding: 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  pointer-events: none;
+  z-index: 1000;
+}
+
+.d3-tooltip {
   position: absolute;
   padding: 10px;
   background-color: steelblue;
