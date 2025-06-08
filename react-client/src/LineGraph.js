@@ -230,6 +230,7 @@ const LineGraph = ({ device }) => {
 
       const containers = document.getElementsByClassName("container");
       for (let i=0; i<containers.length; i++) {
+        if (containers[i].closest('nav')) continue; // Skip container class in nav
         containers[i].classList.add("g-container");
         containers[i].classList.remove("container");
       }

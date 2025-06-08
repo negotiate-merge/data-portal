@@ -25,7 +25,7 @@ def after_request(response):
 # Making changes here to fix bug in firefox logout
 # cors = CORS(app, resources={r"/*": {"origins": "http://34.129.37.135:80"}}, supports_credentials=True)
 cors = CORS(app, resources={r"/*": {
-  "origins": "http://34.129.37.135", # 
+  "origins": ["http://34.129.37.135", "https://dev.synergitech.com.au", "https://synergitech.com.au"] , # 
   "methods": ["GET", "POST", "OPTIONS", "DELETE"],
   "allow_headers": ["Content-Type", "Authorization"],
   "supports_credentials": True
