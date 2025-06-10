@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useContext } from 'react';
 import httpClient from '../httpClient';
 import Marker from '../Marker';
-import { UserContext } from '../UserContext';
+// import { UserContext } from '../UserContext';
 import {
   APIProvider,
   Map,
@@ -10,7 +10,7 @@ import {
 
 const MapPage = () => {
   const [data, setData] = useState([{}]);
-  const { user } = useContext(UserContext);
+  // const { user } = useContext(UserContext);
 
   useEffect(() => {
     const fetchDevices = async () => {
@@ -25,10 +25,9 @@ const MapPage = () => {
     fetchDevices();
   }, []);
 
-  console.log("Data:", data);
-  console.log("Lat:", data.lat);
-  console.log("Lng:", data.lng);
-
+  // console.log("Data:", data);
+  // console.log("Lat:", data.lat);
+  // console.log("Lng:", data.lng);
   // console.log("Device ID's:", data.map(point => point.devId));
   // console.log('user is:', user);
 

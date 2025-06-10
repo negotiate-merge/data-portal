@@ -28,17 +28,6 @@ const createGraph = (data, containerId, metric, title, color="steelblue") => {
     .append("g")
     .attr("transform", `translate(${margin.left},${margin.top})`);
 
-/*
-  // Create svg element, set up sizes
-  const svg = d3.select(`#${containerId}`)
-    .append("svg")
-    .attr("width", width + margin.left + margin.right)
-    .attr("height", height + margin.top + margin.bottom)
-    .attr("class", "graph")
-    .append("g")
-    .attr("transform", `translate(${margin.left},${margin.top})`);
-*/
-
   // Graph Title
   svg.append("text")
     .attr("x", (width / 2))
@@ -67,7 +56,7 @@ const createGraph = (data, containerId, metric, title, color="steelblue") => {
     .selectAll(".tick line")
     .style("stroke-opacity", 0)
   svg.selectAll(".tick text")
-    .attr("fill", "#777");
+    .attr("fill", "#000");
 
   // Add labels x axis
   svg.append("text")
@@ -92,7 +81,7 @@ const createGraph = (data, containerId, metric, title, color="steelblue") => {
     .call(yAxis)
     .call(g => g.select(".domain").remove())
     .selectAll(".tick text")
-    .style("fill", "#777")
+    .style("fill", "#000")
     .style("visibility", (d, i, nodes) => {
       if (i === 0) { return "hidden"; }
       else { return "visible"; }
@@ -111,18 +100,18 @@ const createGraph = (data, containerId, metric, title, color="steelblue") => {
     .attr("x2", d => x(d))
     .attr("y1", 0)
     .attr("y2", height)
-    .attr("stroke", "#e0e0e0")
+    .attr("stroke", "#9e0573")
     .attr("stroke-width", .5);
 
   // Add horizontal gridlines
   svg.selectAll("yGrid")
-    .data(y.ticks(maxValue).slice(1))
+    .data((maxValue < 3) ? [1, 2, 3] : y.ticks(maxValue).slice(1))
     .join("line")
     .attr("x1", 0)
     .attr("x2", width)
     .attr("y1", d => y(d))
     .attr("y2", d => y(d))
-    .attr("stroke", "#e0e0e0")
+    .attr("stroke", "#9e0573") //#e0e0e0
     .attr("stroke-width", .5);
 
   // Add label y axis
@@ -240,8 +229,8 @@ const LineGraph = ({ device }) => {
 
   return (
     <>
-      <div id="pressure-container"></div>
-      <div id="flow-container"></div>
+      <div id="pressure-container" className='s-card'></div>
+      <div id="flow-container" className='s-card'></div>
     </>
   )
 }

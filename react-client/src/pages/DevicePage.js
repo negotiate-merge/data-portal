@@ -1,6 +1,7 @@
 import React, { useState, useEffect }from 'react'
 import { useParams, useLocation } from 'react-router-dom'
 import LineGraph from '../LineGraph';
+import { color } from 'd3';
 
 
 const DevicePage = () => {
@@ -11,7 +12,7 @@ const DevicePage = () => {
   return (
     <>
       <div className="device-page">
-        <h3>Sewer Assest: { siteName }</h3>
+        <h3 style={{ color: "linen" }}>Sewer Assest: { siteName }</h3>
         <LineGraph device={devId}/>
       </div>
     </>
