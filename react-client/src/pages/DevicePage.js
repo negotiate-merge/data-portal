@@ -1,8 +1,5 @@
-import React, { useState, useEffect }from 'react'
 import { useParams, useLocation } from 'react-router-dom'
 import LineGraph from '../LineGraph';
-import { color } from 'd3';
-
 
 const DevicePage = () => {
   const { devId } = useParams();
@@ -19,9 +16,4 @@ const DevicePage = () => {
   )
 }
 
-/* Remove jsx from return element above
-        <p>Latest data received</p>
-        <pre>{JSON.stringify(data)}</pre>
-*/
-
-export default DevicePage
+export default DevicePage;

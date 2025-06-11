@@ -29,7 +29,7 @@ const LoginPage = () => {
     }
   }
 
-  const logInExample = async () => {
+  const logInDemo = async () => {
     try{
       const resp = await httpClient.post('/example-site');
       setUser(resp.data)
@@ -51,7 +51,7 @@ const LoginPage = () => {
   if (!user) {
     return (
       <div className='center login-container s-card'>
-        <h1 style={{ marginBottom: "12px" }}>Log in to Pipe Metrix</h1>
+        <p style={{ marginBottom: "12px", fontSize: "1.25rem" }}>Log in to Pipe Metrix</p>
         <form
           onKeyDown={(e) => {
             if (e.key === 'Enter') {
@@ -70,9 +70,8 @@ const LoginPage = () => {
             onClick={() => logInUser()}>Login</button>
         </form>
           <div style={{ marginTop: "20px" }}>
-            <p style={{ marginBottom: "0", fontSize: "medium" }}>Take a look at the Demonstration</p>
             <button id="example" className='btn btn-secondary space' type="button" 
-            onClick={() => logInExample()}>Login as guest</button>
+            onClick={() => logInDemo()}>See Demonstration</button>
           </div>
       </div>
     );

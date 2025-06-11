@@ -1,7 +1,6 @@
-import React, { useState, useEffect, useContext } from 'react';
+import { useState, useEffect } from 'react';
 import httpClient from '../httpClient';
 import Marker from '../Marker';
-// import { UserContext } from '../UserContext';
 import {
   APIProvider,
   Map,
@@ -10,7 +9,6 @@ import {
 
 const MapPage = () => {
   const [data, setData] = useState([{}]);
-  // const { user } = useContext(UserContext);
 
   useEffect(() => {
     const fetchDevices = async () => {
@@ -24,13 +22,6 @@ const MapPage = () => {
     }  
     fetchDevices();
   }, []);
-
-  // console.log("Data:", data);
-  // console.log("Lat:", data.lat);
-  // console.log("Lng:", data.lng);
-  // console.log("Device ID's:", data.map(point => point.devId));
-  // console.log('user is:', user);
-
 
   // Get these from a .env file import in the future
   const api_key = process.env.REACT_APP_MAPS_API_KEY;
