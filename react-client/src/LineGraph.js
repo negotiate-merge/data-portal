@@ -2,7 +2,7 @@ import { useEffect, } from 'react';
 import createGraph from './utils/createGraph';
 import * as d3 from 'd3';
 
-const LineGraph = ({ device }) => {
+const LineGraph = ({ device, graphId, metric }) => {
   useEffect(() => {
     // const svg = d3.select(svgRef.current);
     d3.csv(`/api/site-data/${device}`).then(function (data) { 
@@ -17,15 +17,14 @@ const LineGraph = ({ device }) => {
       })
 
       // Remove any svg elements from the dom or page?
-      d3.selectAll("svg").remove();
-      createGraph(data, "pressure-container", "Pressure", "Pressure");
-      createGraph(data, "flow-container", "Flow", "Flow");
-
+      // d3.selectAll("svg").remove();
+      createGraph(data, graphId, metric, metric);
+      
       const containers = document.getElementsByClassName("container");
       for (let i=0; i<containers.length; i++) {
         if (containers[i].closest('nav')) continue; // Skip container class in nav
-        // containers[i].classList.add("g-container");
-        // containers[i].classList.remove("container");
+        containers[i].classList.add("g-container");
+        containers[i].classList.remove("container");
       }
 
     })
