@@ -10,6 +10,12 @@ const DevicePage = () => {
     <>
       <div className="device-page">
         <h3 style={{ color: "linen" }}>Sewer Assest: { siteName }</h3>
+        <div className='graph-wrapper'>
+         <div id="pressure-container" className='s-card graph-card'></div>
+        </div>
+        <div className='graph-wrapper'>
+          <div id="flow-container" className='s-card graph-card'></div>
+        </div>
         <LineGraph device={devId}/>
       </div>
     </>

@@ -154,11 +154,10 @@ const createGraph = (data, containerId, metric, title, color="steelblue") => {
 
   const listeningRect = svg.append("rect")
     .attr("width", width)
-    .attr("height", height);
-    /*.attr("fill", "transparent")
+    .attr("height", height)
+    .attr("fill", "transparent")
     .style("pointer-events", "all");
-    // gpt added when creating module, not implemented
-    */
+    
 
   listeningRect.on("mousemove", function (event) {
     const [xCoord] = d3.pointer(event, this);

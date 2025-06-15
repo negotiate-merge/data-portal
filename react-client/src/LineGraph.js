@@ -24,23 +24,15 @@ const LineGraph = ({ device }) => {
       const containers = document.getElementsByClassName("container");
       for (let i=0; i<containers.length; i++) {
         if (containers[i].closest('nav')) continue; // Skip container class in nav
-        containers[i].classList.add("g-container");
-        containers[i].classList.remove("container");
+        // containers[i].classList.add("g-container");
+        // containers[i].classList.remove("container");
       }
 
     })
   }, []); // Removed data as a dependency
 
-  return (
-    <>
-      <div className='graph-wrapper'>
-        <div id="pressure-container" className='s-card graph-card'></div>
-      </div>
-      <div className='graph-wrapper'>
-        <div id="flow-container" className='s-card graph-card'></div>
-      </div>
-    </>
-  )
+   return null; 
+  // Was returning jsx components here but have moved that to the component that makes the call.
 }
 
 export default LineGraph;
