@@ -1,7 +1,19 @@
 import mysql.connector
 import os
 from datetime import datetime
+from flask import session, jsonify
+from functools import wraps
 
+def login_required(f):
+  @wraps(f)
+  def decorated_function(*args, **kwargs):
+    if not (user := session.get("user_id")):
+      return jsonify({"error": "Unauthorized"}), 401
+    return (f(*args, **kwargs))
+  return decorated_function
+
+
+# DATABASE
 def db_connect():
   return mysql.connector.connect(option_files='/etc/mysql/connectors.cnf')
 

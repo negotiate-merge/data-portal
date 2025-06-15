@@ -38,18 +38,19 @@ logging.basicConfig(filename='logs/server.log', level=logging.INFO, \
 
 ''' This is under construction, I do not remember starting it. Will get back to it later.'''
 @app.route("/api/dashboard", methods=["GET"])
+@db.login_required
 def dashboard():
-  if not session.get("user_id"): return jsonify({"error": "Unauthorized"}), 401
   " We are going to make changes to the database and incorporate those here and in device-map below"
 
   return jsonify({
     "dummy_data": "Remove later"
-  })
+  }), 200
 
 
 @app.route("/api/device-map", methods=['GET'])
+@db.login_required
 def device_map():
-  if not (user := session.get("user_id")): return jsonify({"error": "Unauthorized"}), 401
+  user = session.get("user_id")
   company = db.get_company(session.get("company_id"))
   payload = {
     "company": company[0],
@@ -62,7 +63,7 @@ def device_map():
   # Get lastest device data for all devices attached to the users company   
   devices_raw = db.get_devices(user)
   try:
-    for d in devices_raw: # TODO If there are no devices, this may error at present
+    for d in devices_raw:
       # print("d from device-map", d)
       try:
         latest_file_path = db.get_file_path(d[0])
@@ -85,17 +86,16 @@ def device_map():
           payload["devices"].append(device_info)
       except Exception as e:
         app.logger.warning(f'device_map: Error trying to read device file {latest_file_path}.csv')
-    return jsonify(payload)
+    return jsonify(payload), 200
   except Exception as e:
     return jsonify({"info:": "User's company has no devices"}), 200
 
 
 @app.route("/api/site-data/<id>", methods=["GET"])
+@db.login_required
 def site_data(id):
-  if not session.get("user_id"): return jsonify({"error": "Unauthorized"}), 401
   # Return site specific data set
   csvfile = db.get_file_path(id) # Currently the latest file in the directory
-  # print(f"reading data from {csvfile}")
 
   if os.path.exists(csvfile):
     # print("Valid file found returning data for {}".format(id))
@@ -125,7 +125,7 @@ def example_site():
   return jsonify({
     "id": user[0],
     "email": user[1],
-  })
+  }), 200
 
 
 @app.route("/api/login", methods=["POST"])
@@ -155,7 +155,7 @@ def login():
       return jsonify({
         "id": user[0],
         "email": user[1],
-      })
+      }), 200
    
 
 @app.route("/api/auth/check", methods=["GET"])
@@ -176,4 +176,4 @@ def logout():
   
 
 if __name__ == "__main__":
-  app.run(host="127.0.0.1", port=5000) # debug=True
+  app.run(host="127.0.0.1", port=5000)#, debug=True) # debug=True
