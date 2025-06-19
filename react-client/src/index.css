@@ -6,7 +6,7 @@ body {
     linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.3)),
     url("./assets/water-treatment-plant-7382931_1280.jpg") no-repeat center center fixed;
   background-size: cover;
-  color:white;
+  color:linen;
 }
 
 .s-card {
@@ -18,17 +18,34 @@ body {
 }
 
 /* Dashboard */
-.dash {
+.device-box {
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  margin-bottom: 1rem;
+  box-sizing: border-box;
+  gap: 8px;
+  /* height: auto;
+  position: relative; */
+}
+
+/* .device-box > div {
+  flex: 1 1 50%;
+  box-sizing: border-box;
+  padding: 1rem;
+} */
+
+.device-box > p {
+  width: 100%;
+  font-size: x-large;
+  font-weight: 600;
+  margin-bottom: 0;;
+}
+
+.device-box a {
   color: linen;
 }
-
-.device-box {
-  flex: 2;
-  width: 100%;
-  height: auto;
-  position: relative;
-}
-
 
 .dashboard-container {
   display: flex;
@@ -40,7 +57,7 @@ body {
   flex: 1 1 calc(33.33% - 16px);
   min-width: 300px;
   background: lightgrey;
-  padding: 20px;
+  padding: 1rem;
   border-radius: 8px;
   text-align: center;
   box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
@@ -60,6 +77,7 @@ body {
 .g-container {
   margin-left: 8px;
   margin-right: 8px;
+  color: linen;
 }
 
 .graph-heading {

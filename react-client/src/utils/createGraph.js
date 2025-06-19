@@ -86,8 +86,8 @@ const createGraph = (data, containerId, metric, title, color="steelblue") => {
     });
 
   const yLabel = () => {
-    if (metric === "Pressure") return `${metric} psi`;
-    if (metric === "Flow") return `${metric} m3/s`;
+    if (metric === "Pressure") return `psi`;
+    if (metric === "Flow") return `m³/s`;
   }
 
   // Add vertical gridlines

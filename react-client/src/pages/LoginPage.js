@@ -34,7 +34,7 @@ const LoginPage = () => {
       const resp = await httpClient.post('/example-site');
       setUser(resp.data)
       localStorage.setItem("user", JSON.stringify(resp.data));
-      window.location.href = "/map";
+      window.location.href = "/dashboard";
     } catch (err) {
       console.error("Full error object:", err);
       console.error("Response object:", err.response);

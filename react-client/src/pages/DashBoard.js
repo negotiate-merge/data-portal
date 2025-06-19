@@ -1,6 +1,7 @@
 import React, { useState, useEffect }from 'react'
 import LineGraph from '../LineGraph';
 import httpClient from '../httpClient';
+import { Link } from 'react-router-dom';
 
 
 const DashBoard = () => {
@@ -21,7 +22,10 @@ const DashBoard = () => {
 
 
   // console.log("Data:", data);
-  const devices = data.devices.map(device => device.devId);
+  const devices = data.devices.map(device => ({
+    devId: device.devId, 
+    siteName: device.siteName,
+}));
   console.log("Devices:", devices);
   
   // Hit site-data/<id> for every devid to get all the data
@@ -36,17 +40,23 @@ const DashBoard = () => {
 
   return (
     <>
-      <div className="dash">
-        <h1>All Devices</h1>
+      <div>
+        <h1>{`${data.company}`}</h1>
         <div className="dashboard-container">
-          {devices.map((devId, index) => (
+          {devices.map((device, index) => (
             <div key={index} className='device-box'>
-              <p>devId: {`${devId}`}</p>
+              <p>{`${device.siteName} - `}
+                <Link 
+                  to={`/site-data/${device.devId}`}
+                  state={device}
+                  >more data
+                </Link>
+              </p>
               <div className="dashboard-graph" id={`pressure-container-${index}`}>
-                <LineGraph device={devId} graphId={`pressure-container-${index}`} metric="Pressure"/>
+                <LineGraph device={device.devId} graphId={`pressure-container-${index}`} metric="Pressure"/>
               </div>
               <div className="dashboard-graph" id={`flow-container-${index}`}>
-                <LineGraph device={devId} graphId={`flow-container-${index}`} metric="Flow"/>
+                <LineGraph device={device.devId} graphId={`flow-container-${index}`} metric="Flow"/>
               </div>
             </div>
           ))}
