@@ -14,3 +14,7 @@ react-client/.env
 react-client/build/
 react-client/src/assets/
 fix_git_log.sh
+listener/venv/
+listener/notes
+listener/__pycache__/
+listener/listen_tls_test.py
