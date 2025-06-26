@@ -42,8 +42,6 @@ const createGraph = (data, containerId, metric, title, color="steelblue") => {
     .domain([d3.min(data, d => d.Time), d3.max(data, d => d.Time)])   // Time range - old -> .domain(d3.extent(data, d => d.Time))
     .range([0, width]);
 
-  console.log("data len: ", data.length);
-
   const xAxis = d3.axisBottom(x)
     .ticks(data.length)
     .tickValues(x.ticks(d3.timeHour.every((data.length > 96) ? 6 : 1)))

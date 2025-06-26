@@ -1,0 +1,24 @@
+#!/bin/bash
+
+SERVICE_NAME="backend_flask.service"
+PROJECT_DIR="/home/nigel/data-portal/flask-server"
+CONFIG_FILE="config.py"
+
+echo "Stopping service $SERVICE_NAME"
+sudo systemctl stop "$SERVICE_NAME"
+
+cd "$PROJECT_DIR" || { echo "Failed to cd into $PROJECT_DIR"; exit 1; }
+
+echo "Enabling DEBUG mode ..."
+sed -i "s/^\(.*DEBUG *= *\)False/\1True/" "$CONFIG_FILE"
+
+echo "Starting Flask Server..."
+trap 'echo "Disabling DEBUG mode..."; \
+sed -i "s/^\(.*DEBUG *= *\)True/\1False/" "$CONFIG_FILE"; \
+echo "Restarting service $SERVICE_NAME"; \
+sudo systemctl start "$SERVICE_NAME"; \
+exit 0;' SIGINT
+
+python3 server.py
+
+sed -i "s/^\(.*DEBUG *= *\)True/\1False/" "CONFIG_FILE"

@@ -1,0 +1,18 @@
+#!/bin/bash
+
+set -e
+
+if [ ! -d /home/nigel/data-portal/react-client/build ]; then
+	echo "Source directory does not exist, aborting"
+	exit 1
+fi
+
+rm -rf /var/www/prod_previous/*
+
+if [ -d "/var/www/prod" ]  && [ "$(ls -A /var/www/prod)" ]; then
+	mv /var/www/prod/* /var/www/prod_previous/ || { echo "Failed to move production files" exit 1; }
+fi
+
+cp -r /home/nigel/data-portal/react-client/build/* /var/www/prod/ || { echo "Failed to copy new build"; exit 1; }
+
+echo "Deployment successful."
