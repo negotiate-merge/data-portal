@@ -5,12 +5,13 @@ const createGraph = (data, containerId, metric, title, color="steelblue") => {
   const isMobile = window.innerWidth < 768;
   
   const margin = { top: 50, right: 30, bottom: 50, left: 40 };
-  const width = 800 - margin.left - margin.right;
+  const width = ((isMobile) ? 800 : window.innerWidth - 20) - margin.left - margin.right; // Was 800 - ...
   const height = 400 - margin.top - margin.bottom;
 
   const maxValue = d3.max(data, d => d[metric]);
   const formatDate = timeFormat("%d %B %Y");
-  const date = formatDate(d3.max(data, d => d.Time));
+  const maxDate = formatDate(d3.max(data, d => d.Time));
+  const minDate = formatDate(d3.min(data, d => d.Time));
 
   // Clear previous SVG if present
   d3.select(`#${containerId}`).select('svg').remove();
@@ -20,7 +21,7 @@ const createGraph = (data, containerId, metric, title, color="steelblue") => {
     .append("svg")
     .attr("viewBox", `0 0 ${width + margin.left + margin.right} ${height + margin.top + margin.bottom}`)
     .attr("preserveAspectRatio", "xMidYMid meet")
-    .style("width", "100%")
+    .style("width", "100%") 
     .style("height", "auto")
     .attr("class", "graph")
     .style("max-width", "100%")
@@ -41,9 +42,11 @@ const createGraph = (data, containerId, metric, title, color="steelblue") => {
     .domain([d3.min(data, d => d.Time), d3.max(data, d => d.Time)])   // Time range - old -> .domain(d3.extent(data, d => d.Time))
     .range([0, width]);
 
+  console.log("data len: ", data.length);
+
   const xAxis = d3.axisBottom(x)
     .ticks(data.length)
-    .tickValues(x.ticks(d3.timeHour.every(1)))
+    .tickValues(x.ticks(d3.timeHour.every((data.length > 96) ? 6 : 1)))
     .tickFormat(d3.timeFormat("%I %p"));
 
   svg
@@ -62,7 +65,8 @@ const createGraph = (data, containerId, metric, title, color="steelblue") => {
     .attr("x", width / 2)
     .attr("y", height + margin.bottom - 5)
     .style("text-anchor", "middle")
-    .text(date);
+    .text((data.length > 96) ? `${minDate} - ${maxDate}` : maxDate);
+  
 
   /* Y AXIS */
   const y = d3.scaleLinear()

@@ -65,7 +65,7 @@ def get_devices(user_id=None):
   return rows
 
 
-def get_file_path(device):
+def get_file_paths(device, days):
   folder_path = f"/opt/data/{device}"
   try:
     # Get files from device directory
@@ -79,17 +79,17 @@ def get_file_path(device):
       try:
         date_str = filename.replace(".csv", "")
         date_obj = datetime.strptime(date_str, "%Y-%m-%d")
-        dated_files.append((date_obj, filename))
+        dated_files.append((date_obj, os.path.join(folder_path, filename)))
       except ValueError:
         continue # Skip invalid file
 
-    # Get the latest log file
-    if dated_files:
-      latest_file = max(dated_files, key=lambda x: x[0])[1]
-      latest_file_path = os.path.join(folder_path, latest_file)
+    # Sort list in reverse order
+    sorted_set = sorted(dated_files, key=lambda x: x[0], reverse=True)
+
   except Exception as e:
     return e
-  return latest_file_path
+  # Extract number files by days then sort cronologically
+  return sorted(sorted_set[:days], key=lambda x: x[0])
   
 
 

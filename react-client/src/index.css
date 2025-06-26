@@ -9,6 +9,10 @@ body {
   color:linen;
 }
 
+#body {
+  color:linen;
+}
+
 .s-card {
   background-color: rgba(255, 255, 255, 0.3);
   border-radius: 4px;
@@ -26,15 +30,7 @@ body {
   margin-bottom: 1rem;
   box-sizing: border-box;
   gap: 8px;
-  /* height: auto;
-  position: relative; */
 }
-
-/* .device-box > div {
-  flex: 1 1 50%;
-  box-sizing: border-box;
-  padding: 1rem;
-} */
 
 .device-box > p {
   width: 100%;
@@ -74,10 +70,39 @@ body {
   margin: 10px 0 0 0;
 }
 
+.dev-heading {
+  font-size: xx-large;
+}
+
+.graph-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+}
+
+.button-group {
+  display: flex;
+  gap: 1rem;
+}
+
+.day-link {
+  /* display: inline-block; */
+  padding: 0.5rem 1rem;
+  background-color: #ccc;
+  color: #000;
+  text-decoration: none;
+  border: 1px solid #999;
+  border-radius: 3px;
+  font-weight: bold;
+  text-align: center;
+  transition: background-color 0.2s ease;
+}
+
 .g-container {
   margin-left: 8px;
   margin-right: 8px;
-  color: linen;
+  /* color: linen; */
 }
 
 .graph-heading {
@@ -107,7 +132,7 @@ rect {
   justify-content: center;
   align-items: center;
   width: 100%;
-  max-width: 1000px;
+  /* max-width: 1000px; */
   /* margin: 0 auto; */
   /* padding: 1rem; */
   box-sizing: border-box;
@@ -123,6 +148,10 @@ rect {
 /* Map page */
 .map-container {
   height: calc(100vh - 58px);
+}
+
+.iwColumn {
+  color: black;
 }
 
 /* Landing page & login */

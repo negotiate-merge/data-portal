@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import httpClient from '../httpClient';
 import { UserContext } from '../UserContext';
 
@@ -6,9 +6,19 @@ const LoginPage = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const { user, setUser } = useContext(UserContext)
+  
+
+  useEffect(() => {
+    try {
+      httpClient.get("/auth/check");
+    } catch (err) {
+      console.error("Unautorized:", err.response);
+    }
+    
+  })
 
   const logInUser = async () => {
-    try{
+    try {
       const resp = await httpClient.post('/login', {
         email,
         password,
@@ -30,7 +40,7 @@ const LoginPage = () => {
   }
 
   const logInDemo = async () => {
-    try{
+    try {
       const resp = await httpClient.post('/example-site');
       setUser(resp.data)
       localStorage.setItem("user", JSON.stringify(resp.data));
@@ -75,6 +85,9 @@ const LoginPage = () => {
           </div>
       </div>
     );
+  }
+  else {
+    window.location.href = "/dashboard";
   }
 };
 

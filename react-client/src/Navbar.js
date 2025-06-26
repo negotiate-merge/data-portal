@@ -1,4 +1,4 @@
-import React, { useContext } from "react";
+import { useContext } from "react";
 import httpClient from "./httpClient";
 import { UserContext } from "./UserContext";
 
@@ -17,7 +17,7 @@ import { UserContext } from "./UserContext";
   };
 
   return <nav className="navbar navbar-expand-lg sticky-top bg-body-tertiary" data-bs-theme="dark">
-  <div className="container">
+  <div className="container-fluid">
     <a className="navbar-brand" href="/">Pipe Metrix</a>
 
     { user && (

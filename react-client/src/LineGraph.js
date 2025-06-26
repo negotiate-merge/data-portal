@@ -2,10 +2,10 @@ import { useEffect, } from 'react';
 import createGraph from './utils/createGraph';
 import * as d3 from 'd3';
 
-const LineGraph = ({ device, graphId, metric }) => {
+const LineGraph = ({ device, graphId, metric, days }) => {
   useEffect(() => {
     // const svg = d3.select(svgRef.current);
-    d3.csv(`/api/site-data/${device}`).then(function (data) { 
+    d3.csv(`/api/site-data/${device}?days=${days}`).then(function (data) { 
 
       const parseDate = d3.timeParse("%Y-%m-%d %H:%M:%S")
       

@@ -1,5 +1,6 @@
 import csv
 import os
+import io
 import logging
 from datetime import datetime
 from flask import Flask, request, session, send_file, jsonify 
@@ -36,16 +37,6 @@ server_session = Session(app)
 logging.basicConfig(filename='logs/server.log', level=logging.INFO, \
                     format='%(asctime)s %(levelname)s: %(message)s', datefmt='%m/%d/%Y %I:%M:%S %p')
 
-''' This is under construction, I do not remember starting it. Will get back to it later.'''
-@app.route("/api/dashboard", methods=["GET"])
-@db.login_required
-def dashboard():
-  " We are going to make changes to the database and incorporate those here and in device-map below"
-
-  return jsonify({
-    "dummy_data": "Remove later"
-  }), 200
-
 
 @app.route("/api/device-map", methods=['GET'])
 @db.login_required
@@ -66,8 +57,8 @@ def device_map():
     for d in devices_raw:
       # print("d from device-map", d)
       try:
-        latest_file_path = db.get_file_path(d[0])
-        with open(latest_file_path, "r") as f:
+        latest_file_path = db.get_file_paths(d[0], 1)
+        with open(latest_file_path[0][1], "r") as f:
           c = csv.reader(f)
           last_line = None
           for row in c:
@@ -94,19 +85,43 @@ def device_map():
 @app.route("/api/site-data/<id>", methods=["GET"])
 @db.login_required
 def site_data(id):
-  # Return site specific data set
-  csvfile = db.get_file_path(id) # Currently the latest file in the directory
+  # Get days query from url
+  days = request.args.get("days", default=1, type=int)
 
-  if os.path.exists(csvfile):
-    # print("Valid file found returning data for {}".format(id))
+  # Return site specific data set
+  csvfiles = db.get_file_paths(id, days) # Sorted array tuples (dateObj, filename) of files
+  if days == 1:
     return send_file(
-      csvfile,
+      csvfiles[0][1], # Second item of first tuple
       mimetype='text/csv',
       as_attachment=False
     )
+  elif days > 1:
+    pass
+    # build the csv here look near the end of https://chatgpt.com/c/6859a269-8adc-8000-8d0e-869b15b7b94f
+    csv_buffer = io.StringIO()
+    writer = csv.writer(csv_buffer)
+
+    first_file = True
+    for file in csvfiles:
+      with open(file[1], 'r') as f:
+        reader = csv.reader(f)
+        for i, row in enumerate(reader):
+          if i == 0 and not first_file: 
+            if row == ["Time", "Pressure", "Flow"]: continue
+          writer.writerow(row)
+      first_file = False          
+
+    csv_buffer.seek(0)  # Return to start of buffer
+    return send_file(
+      io.BytesIO(csv_buffer.getvalue().encode('utf-8')),
+      mimetype='text/csv',
+      as_attachment=False,
+    )
+    
   else: 
     # print(f"file with id {type(id)} not found")
-    app.logger.warning(f'site_data: file with id {id} not found')
+    app.logger.warning(f'site_data: file(s) with id {id} not found')
     return jsonify({"error": "Resource not found"}), 404
 
 
@@ -176,4 +191,4 @@ def logout():
   
 
 if __name__ == "__main__":
-  app.run(host="127.0.0.1", port=5000)#, debug=True) # debug=True
+  app.run(host="127.0.0.1", port=5000, debug=True) # debug=True

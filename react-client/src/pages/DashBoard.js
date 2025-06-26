@@ -26,28 +26,17 @@ const DashBoard = () => {
     devId: device.devId, 
     siteName: device.siteName,
 }));
-  console.log("Devices:", devices);
-  
-  // Hit site-data/<id> for every devid to get all the data
-  // useEffect(() => {
-      // Need to go through all devices here and call line graph for each one
-      // Need to further refine line graph first
-  //     })
-  //   )
-  // }
-
-
 
   return (
     <>
       <div>
         <h1>{`${data.company}`}</h1>
-        <div className="dashboard-container">
+        <div className="container">{/*<div className="dashboard-container"></div>*/}
           {devices.map((device, index) => (
             <div key={index} className='device-box'>
               <p>{`${device.siteName} - `}
                 <Link 
-                  to={`/site-data/${device.devId}`}
+                  to={`/site-data/${device.devId}?days=1&siteName=${encodeURIComponent(device.siteName)}`}
                   state={device}
                   >more data
                 </Link>
