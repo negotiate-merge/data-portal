@@ -39,7 +39,7 @@ import httpClient from './httpClient';
     <>
     <UserContext.Provider value={value}>
       <Navbar />
-      <div className="container">
+      <div id="body">
         <Routes>
           <Route path="/" element={<LoginPage />}/>
           <Route path="/dashboard" element={<DashBoard />}></Route>
