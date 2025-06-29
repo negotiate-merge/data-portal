@@ -1,0 +1,5 @@
+*.js linguist-language=JavaScript
+node_modules/* linguist-vendored
+dist/* linguist-generated
+build/* linguist-generated
+*.js linguist-detectable=true
