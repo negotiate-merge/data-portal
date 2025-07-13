@@ -3,9 +3,9 @@ import json
 
 from dwriter import write_data
 
-# Configuration
-BROKER = 'mqtt.synergitech.com.au'
-PORT = 8883
+''' Configuration - Listening locally as we are running on the same host as the mqtt broker '''
+BROKER = 'localhost'
+PORT = 1883
 TOPIC = 'upload_feed'
 
 def on_connect(client, userdata, flags, rc, properties):
@@ -28,13 +28,18 @@ def on_message(client, userdata, msg):
   if data['IMEI'] in devices:
     lines = list(data.items())[-8:]
     # Will run the below in seperate thread eventually
+    # print("writing a line")
     write_data(data['IMEI'], lines)
 
 client = mqtt.Client(mqtt.CallbackAPIVersion.VERSION2, client_id="listener_01", protocol=mqtt.MQTTv5)
 client.on_connect = on_connect
 client.on_message = on_message
 
-client.tls_set(ca_certs="/home/nigel/certs/CA/ca.crt", certfile="/home/nigel/certs/clients/listener/listener.crt", keyfile="/home/nigel/certs/clients/listener/listener.key")
+''' Not presently required
+client.tls_set(ca_certs="/home/nigel/certs/CA/ca.pem", 
+               certfile="/home/nigel/certs/CA/clients/chirpstack/chirpstack-client.pem", 
+               keyfile="/home/nigel/certs/CA/clients/chirpstack/chirpstack-client-key.pem")
+'''
 client.connect(BROKER, PORT, 60)
 client.loop_forever()
 
