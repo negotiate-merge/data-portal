@@ -1,3 +1,4 @@
+react-client/src/**/*.js linguist-language=JavaScript linguist-detectable=true linguist-vendored=false linguist-generated=false
 *.js linguist-language=JavaScript
 node_modules/* linguist-vendored
 dist/* linguist-generated
