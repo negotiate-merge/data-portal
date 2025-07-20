@@ -31,7 +31,7 @@ def on_message(client, userdata, msg):
     # print("writing a line")
     write_data(data['IMEI'], lines)
 
-client = mqtt.Client(mqtt.CallbackAPIVersion.VERSION2, client_id="listener_01", protocol=mqtt.MQTTv5)
+client = mqtt.Client(mqtt.CallbackAPIVersion.VERSION2, client_id="cellular-listener", protocol=mqtt.MQTTv5)
 client.on_connect = on_connect
 client.on_message = on_message
 

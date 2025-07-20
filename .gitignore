@@ -2,8 +2,6 @@ flask-server/logs/
 flask-server/.env
 flask-server/__pycache__/
 flask-server/config.py
-flask-server/play_files.py
-notes
 package-lock.json
 public/
 App.js
@@ -13,8 +11,9 @@ react-client/node_modules/
 react-client/.env
 react-client/build/
 react-client/src/assets/
-fix_git_log.sh
-listener/venv/
-listener/notes
-listener/__pycache__/
-listener/listen_tls_test.py
+paho-services/venv/
+paho-services/__pycache__/
+paho-services/lora/__pycache__/
+paho-services/lora/config.py
+paho-services/lora/controller.log
+

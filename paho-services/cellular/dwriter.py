@@ -22,7 +22,7 @@ def write_data(path, data):
       with open(date_file, "a") as f:
         f.write(f"{date_time},{pressure},{flow}\n")
     else:
-      # Create dat file if not found.
+      # Create date file if not found.
       with open(date_file, "w") as f:
         f.write(header)
         f.write(f"{date_time},{pressure},{flow}\n")
