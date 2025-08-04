@@ -1,6 +1,6 @@
 #!/bin/bash
 
-SERVICE_NAME="backend_flask.service"
+SERVICE_NAME="flask-server.service"
 PROJECT_DIR="/home/nigel/data-portal/flask-server"
 CONFIG_FILE="config.py"
 

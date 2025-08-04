@@ -90,39 +90,42 @@ def site_data(id):
 
   # Return site specific data set
   csvfiles = db.get_file_paths(id, days) # Sorted array tuples (dateObj, filename) of files
-  if days == 1:
-    return send_file(
-      csvfiles[0][1], # Second item of first tuple
-      mimetype='text/csv',
-      as_attachment=False
-    )
-  elif days > 1:
-    pass
-    # build the csv here look near the end of https://chatgpt.com/c/6859a269-8adc-8000-8d0e-869b15b7b94f
-    csv_buffer = io.StringIO()
-    writer = csv.writer(csv_buffer)
 
-    first_file = True
-    for file in csvfiles:
-      with open(file[1], 'r') as f:
-        reader = csv.reader(f)
-        for i, row in enumerate(reader):
-          if i == 0 and not first_file: 
-            if row == ["Time", "Pressure", "Flow"]: continue
-          writer.writerow(row)
-      first_file = False          
+  # build the csv here look near the end of https://chatgpt.com/c/6859a269-8adc-8000-8d0e-869b15b7b94f
+  csv_buffer = io.StringIO()
+  writer = csv.writer(csv_buffer)
 
-    csv_buffer.seek(0)  # Return to start of buffer
-    return send_file(
-      io.BytesIO(csv_buffer.getvalue().encode('utf-8')),
-      mimetype='text/csv',
-      as_attachment=False,
-    )
-    
-  else: 
-    # print(f"file with id {type(id)} not found")
-    app.logger.warning(f'site_data: file(s) with id {id} not found')
-    return jsonify({"error": "Resource not found"}), 404
+  first_file = True
+  for file in csvfiles:
+    with open(file[1], 'r') as f:
+      reader = csv.reader(f)
+      for i, row in enumerate(reader):
+        # Skip header in following files
+        if i == 0 and not first_file:
+          if row == ["Time", "Pressure", "Flow"]: continue
+        try:
+          row[1] = f"{round(float(row[1]) * 2.9, 1)}" # 14.5(psi) / 5 = 2.9 as a ratio of volts to psi
+          row[2] = f"{round(float(row[2]) * 0.6, 1)}" # 3 m3/s / 5 = 0.6 as a ratio of volts to m3/s
+        except (ValueError, IndexError):
+          # Maybe log here
+          pass
+        writer.writerow(row)
+    first_file = False          
+
+  csv_buffer.seek(0)  # Return to start of buffer
+
+  # return_file = io.BytesIO(csv_buffer.getvalue().encode('utf-8'))
+  # txt = return_file.read().decode('utf-8')
+  # print(txt)
+
+  return send_file(
+    io.BytesIO(csv_buffer.getvalue().encode('utf-8')),
+    mimetype='text/csv',
+    as_attachment=False,
+  )
+  
+  # app.logger.warning(f'site_data: file(s) with id {id} not found')
+  return jsonify({"error": "Resource not found"}), 404
 
 
 @app.route("/api/example-site", methods=["POST"])

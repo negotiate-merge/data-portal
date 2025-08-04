@@ -184,7 +184,7 @@ const createGraph = (data, containerId, metric, title, color="steelblue") => {
     .style("display", "block")
     .style("left", `${isMobile ? xPos + 50 : xPos + 100}px`)
     .style("top", `${isMobile ? yPos + 30: yPos + 50}px`)
-    .html(`<strong>Time:</strong> ${d.Time.toLocaleTimeString("en-US")}<br><strong>${metric}:</strong> ${d[metric] !== undefined ? (d[metric]).toFixed(2) + (metric === "Pressure" ? "Psi" : "m3/s") : 'N/A'}`);
+    .html(`<strong>Time:</strong> ${d.Time.toLocaleTimeString("en-US")}<br><strong>${metric}:</strong> ${d[metric] !== undefined ? (d[metric]).toFixed(1) + (metric === "Pressure" ? " Psi" : " m3/s") : 'N/A'}`);
   });
 
   // Listening rectangle mouse leave function

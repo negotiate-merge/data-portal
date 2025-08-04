@@ -16,4 +16,5 @@ paho-services/__pycache__/
 paho-services/lora/__pycache__/
 paho-services/lora/config.py
 paho-services/lora/controller.log
-
+data_uploader/
+paho-services/cellular/__pycache__/

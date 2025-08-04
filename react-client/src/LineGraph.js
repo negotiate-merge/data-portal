@@ -9,12 +9,16 @@ const LineGraph = ({ device, graphId, metric, days }) => {
 
       const parseDate = d3.timeParse("%Y-%m-%d %H:%M:%S")
       
+      console.log("raw data: ", data);
+
       // Change number strings to numbers
       data.forEach(d => {
         d.Time = parseDate(d.Time);//new Date(d.Time);
-        d.Pressure = +d.Pressure * 2.9; // 14.5(psi) / 5 = 2.9 as a ratio of volts to psi
-        d.Flow = +d.Flow * 0.6;         // 3 m3/s / 5 = 0.6 as a ratio of volts to m3/s
+        d.Pressure = +d.Pressure;
+        d.Flow = +d.Flow;
       })
+
+      // console.log("formatted data: ", data);
 
       // Remove any svg elements from the dom or page?
       // d3.selectAll("svg").remove();
