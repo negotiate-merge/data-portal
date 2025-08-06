@@ -1,5 +1,7 @@
 #!/bin/bash
 
+echo "Make sure you have run 'npm run build' before running this"
+
 set -e
 
 if [ ! -d /home/nigel/data-portal/react-client/build ]; then

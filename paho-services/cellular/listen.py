@@ -16,9 +16,6 @@ def on_connect(client, userdata, flags, rc, properties):
 devices = [
   "863663062798815",
   "863663062798816",
-  "aabbccddeeff0003",
-  "aabbccddeeff0004",
-  "aabbccddeeff0005",
 ]
 
 def on_message(client, userdata, msg):

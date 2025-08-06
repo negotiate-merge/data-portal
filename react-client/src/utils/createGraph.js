@@ -67,13 +67,23 @@ const createGraph = (data, containerId, metric, title, color="steelblue") => {
   
 
   /* Y AXIS */
+  const yMax = Math.ceil(maxValue * 2 / 2)
   const y = d3.scaleLinear()
-    .domain([0, Math.ceil(maxValue)])  // Round the highest reading up to nearest integer
+    .domain([0, yMax])  // Round the highest reading up to nearest integer
     .range([height, 0]);
 
+  // Ticks for flow
+  const ticks = [];
+  for (let i=0; i<=yMax; i+=0.5) {ticks.push(i);}
+
+  const yTicks = metric === "Flow" ? ticks.slice(0, -1) :
+    d3.range(0, Math.ceil(maxValue), 1); // 
+
+    // console.log(`ticks for ${metric} ${yTicks}`);
+
   const yAxis = d3.axisLeft(y)
-    .ticks(Math.ceil(maxValue))
-    .tickFormat(d => d.toFixed(0))
+    .tickValues(yTicks)//.ticks(Math.ceil(maxValue))
+    .tickFormat(d => (d % 1) ? d.toFixed(1) : d.toFixed(0))
     .tickSize(0)
     .tickPadding(10)
 
@@ -105,7 +115,7 @@ const createGraph = (data, containerId, metric, title, color="steelblue") => {
 
   // Add horizontal gridlines
   svg.selectAll("yGrid")
-    .data((maxValue < 3) ? [1, 2, 3] : y.ticks(maxValue).slice(1))
+    .data((maxValue <= 3) ? ticks.slice(1, -1) : y.ticks(maxValue).slice(1, -1))
     .join("line")
     .attr("x1", 0)
     .attr("x2", width)

@@ -31,7 +31,7 @@ import httpClient from './httpClient';
       localStorage.removeItem("user");
     }
     */
-  }, []); // Removed user as a dependencie with the above changes.
+  }, []); // Removed user as a dependency with the above changes.
   
   const value = useMemo(() => ({ user, setUser }), [user, setUser]);
 

@@ -86,7 +86,7 @@ def device_map():
 @db.login_required
 def site_data(id):
   # Get days query from url
-  days = request.args.get("days", default=1, type=int)
+  days = request.args.get("days", default=0, type=int)
 
   # Return site specific data set
   csvfiles = db.get_file_paths(id, days) # Sorted array tuples (dateObj, filename) of files

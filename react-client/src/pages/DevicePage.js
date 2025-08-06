@@ -35,8 +35,8 @@ const DevicePage = () => {
         <div id="p-head" className="graph-header">
           <p className="dev-heading">Sewer Assest: { siteName }</p>
           <div className="button-group">
-            <a href={`/site-data/${devId}?days=7&siteName=${encodeURIComponent(siteName)}`} className='day-link'>7 Days</a>
-            <a href={`/site-data/${devId}?days=1&siteName=${encodeURIComponent(siteName)}`} className='day-link'>1 Day</a>
+            <a href={`/site-data/${devId}?days=6&siteName=${encodeURIComponent(siteName)}`} className='day-link'>7 Days</a>
+            <a href={`/site-data/${devId}?days=0&siteName=${encodeURIComponent(siteName)}`} className='day-link'>1 Day</a>
           </div>
         </div>
         <div id="p-graph" className='graph-wrapper'>

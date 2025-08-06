@@ -36,7 +36,7 @@ const DashBoard = () => {
             <div key={index} className='device-box'>
               <p>{`${device.siteName} - `}
                 <Link 
-                  to={`/site-data/${device.devId}?days=1&siteName=${encodeURIComponent(device.siteName)}`}
+                  to={`/site-data/${device.devId}?days=0&siteName=${encodeURIComponent(device.siteName)}`}
                   state={device}
                   >more data
                 </Link>

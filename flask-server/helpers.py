@@ -1,6 +1,6 @@
 import mysql.connector
 import os
-from datetime import datetime
+import datetime
 from flask import session, jsonify
 from functools import wraps
 
@@ -78,7 +78,7 @@ def get_file_paths(device, days):
     for filename in files:
       try:
         date_str = filename.replace(".csv", "")
-        date_obj = datetime.strptime(date_str, "%Y-%m-%d")
+        date_obj = datetime.datetime.strptime(date_str, "%Y-%m-%d")
         dated_files.append((date_obj, os.path.join(folder_path, filename)))
       except ValueError:
         continue # Skip invalid file
@@ -86,10 +86,16 @@ def get_file_paths(device, days):
     # Sort list in reverse order
     sorted_set = sorted(dated_files, key=lambda x: x[0], reverse=True)
 
+    # Filter files by date in their filename
+    today = datetime.date.today()
+    timeframe = today - datetime.timedelta(days=days)
+    retrieved_files = [
+      fname for fname in sorted_set if timeframe <= fname[0].date() <= today
+    ]
+
   except Exception as e:
     return e
-  # Extract number files by days then sort cronologically
-  return sorted(sorted_set[:days], key=lambda x: x[0])
+  return sorted(retrieved_files)
   
 
 

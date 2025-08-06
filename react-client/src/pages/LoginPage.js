@@ -12,7 +12,7 @@ const LoginPage = () => {
     try {
       httpClient.get("/auth/check");
     } catch (err) {
-      console.error("Unautorized:", err.response);
+      console.error("Unauthorized:", err.response);
     }
     
   })

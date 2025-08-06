@@ -8,8 +8,6 @@ const LineGraph = ({ device, graphId, metric, days }) => {
     d3.csv(`/api/site-data/${device}?days=${days}`).then(function (data) { 
 
       const parseDate = d3.timeParse("%Y-%m-%d %H:%M:%S")
-      
-      console.log("raw data: ", data);
 
       // Change number strings to numbers
       data.forEach(d => {
@@ -17,8 +15,6 @@ const LineGraph = ({ device, graphId, metric, days }) => {
         d.Pressure = +d.Pressure;
         d.Flow = +d.Flow;
       })
-
-      // console.log("formatted data: ", data);
 
       // Remove any svg elements from the dom or page?
       // d3.selectAll("svg").remove();
