@@ -3,7 +3,15 @@ import { timeFormat } from 'd3';
 
 const createGraph = (data, containerId, metric, title, color="steelblue") => {
   const isMobile = window.innerWidth < 768;
-  
+
+  if (!data) {
+    const messageContainer = d3.select(`#${containerId}`);
+    messageContainer.selectAll('*').remove();
+    messageContainer.
+      html(`<p class="no-data">No ${metric} data available yet for this date</p>`);
+    return
+  }
+
   const margin = { top: 50, right: 30, bottom: 50, left: 40 };
   const width = ((isMobile) ? 800 : window.innerWidth - 20) - margin.left - margin.right; // Was 800 - ...
   const height = 400 - margin.top - margin.bottom;
@@ -37,9 +45,9 @@ const createGraph = (data, containerId, metric, title, color="steelblue") => {
     .attr("font-weight", "bold")
     .text(title)
 
-  /* X AXIS */
+  /* m AXIS */
   const x = d3.scaleTime()
-    .domain([d3.min(data, d => d.Time), d3.max(data, d => d.Time)])   // Time range - old -> .domain(d3.extent(data, d => d.Time))
+    .domain([d3.min(data, d => d.Time), d3.max(data, d => d.Time)])
     .range([0, width]);
 
   const xAxis = d3.axisBottom(x)
@@ -50,11 +58,11 @@ const createGraph = (data, containerId, metric, title, color="steelblue") => {
   svg
     .append("g")
     .attr("class", "x-axis")  // .select(".x-axis")
-    .attr("transform", `translate(0,${height})`) // .style("transform", `translateY(${height}px)`)
+    .attr("transform", `translate(0,${height})`)
     .call(xAxis)
     .call(g => g.select(".domain").remove())
     .selectAll(".tick line")
-    .style("stroke-opacity", 0)
+    .style("stroke-opacity", 0) // removes tick lines at axis
   
   svg.selectAll(".tick text").attr("fill", "#000");
 
@@ -67,23 +75,21 @@ const createGraph = (data, containerId, metric, title, color="steelblue") => {
   
 
   /* Y AXIS */
-  const yMax = Math.ceil(maxValue * 2 / 2)
+  const yMax = Math.ceil(maxValue * 2 / 2)  // Round the highest reading up to nearest integer
   const y = d3.scaleLinear()
-    .domain([0, yMax])  // Round the highest reading up to nearest integer
+    .domain([0, yMax])
     .range([height, 0]);
 
-  // Ticks for flow
+  // Ticks for flow in 0.5 increments
   const ticks = [];
   for (let i=0; i<=yMax; i+=0.5) {ticks.push(i);}
 
   const yTicks = metric === "Flow" ? ticks.slice(0, -1) :
     d3.range(0, Math.ceil(maxValue), 1); // 
 
-    // console.log(`ticks for ${metric} ${yTicks}`);
-
   const yAxis = d3.axisLeft(y)
-    .tickValues(yTicks)//.ticks(Math.ceil(maxValue))
-    .tickFormat(d => (d % 1) ? d.toFixed(1) : d.toFixed(0))
+    .tickValues(yTicks)
+    .tickFormat(d => (d % 1) ? d.toFixed(1) : d.toFixed(0)) // Exclude floating point if appropriate
     .tickSize(0)
     .tickPadding(10)
 
@@ -93,7 +99,7 @@ const createGraph = (data, containerId, metric, title, color="steelblue") => {
     .selectAll(".tick text")
     .style("fill", "#000")
     .style("visibility", (d, i, nodes) => {
-      if (i === 0) { return "hidden"; }
+      if (i === 0) { return "hidden"; } // Hide 0 @ x y axis origin
       else { return "visible"; }
     });
 
@@ -121,7 +127,7 @@ const createGraph = (data, containerId, metric, title, color="steelblue") => {
     .attr("x2", width)
     .attr("y1", d => y(d))
     .attr("y2", d => y(d))
-    .attr("stroke", "#9e0573") //#e0e0e0
+    .attr("stroke", "#9e0573")
     .attr("stroke-width", .5);
 
   // Add label y axis
@@ -146,7 +152,7 @@ const createGraph = (data, containerId, metric, title, color="steelblue") => {
     .attr("d", myLine);
 
 
-  /* TOOL TIP */
+  /* TOOL TIPS */
   // Create tooltip div
   const svgContainer = d3.select(`#${containerId}`)
     .style("position", "relative");
@@ -181,20 +187,49 @@ const createGraph = (data, containerId, metric, title, color="steelblue") => {
     const d = x0 - d0.Time > d1.Time - x0 ? d1 : d0;
     const xPos = x(d.Time);
     const yPos = y(d[metric]);
-  
-  // Update the circle position
-  circle.attr("cx", xPos)
-    .attr("cy", yPos);
-  
-  // Add transition for the circle radius
-  circle.transition().duration(50).attr("r", 5);
+      
+    // Update the circle position
+    circle.attr("cx", xPos)
+      .attr("cy", yPos);
+    
+    // Add transition for the circle radius
+    circle.transition().duration(50).attr("r", 5);
 
-  // Add in our tooltip
-  tooltip
-    .style("display", "block")
-    .style("left", `${isMobile ? xPos + 50 : xPos + 100}px`)
-    .style("top", `${isMobile ? yPos + 30: yPos + 50}px`)
-    .html(`<strong>Time:</strong> ${d.Time.toLocaleTimeString("en-US")}<br><strong>${metric}:</strong> ${d[metric] !== undefined ? (d[metric]).toFixed(1) + (metric === "Pressure" ? " Psi" : " m3/s") : 'N/A'}`);
+    const containerBounds = svgContainer.node().getBoundingClientRect();    // Get container offset
+    const mouseX = event.clientX - containerBounds.left;   // Get mouse co-ords
+    const mouseY = event.clientY - containerBounds.top;
+
+    // Show tooltip temporarily to measure its dimensions
+    tooltip
+      .style("visibility", "hidden")
+      .style("display", "block")
+      .html(`<strong>Time:</strong> ${d.Time.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" })}<br><strong>${metric}:</strong> ${d[metric] !== undefined ? (d[metric]).toFixed(1) + (metric === "Pressure" ? " Psi" : " m3/s") : 'N/A'}`)
+
+    const toolTipWidth = tooltip.node().offsetWidth;    // get tooltip width
+    const toolTipHeight = tooltip.node().offsetHeight;  // get tooltip height
+    const padding = 15;
+
+    let toolTipPosX;
+    if (mouseX + toolTipWidth + padding > containerBounds.width) {
+      toolTipPosX = mouseX - toolTipWidth - padding;  // place on left of cursor if overflowing to the right
+    } else {
+      toolTipPosX = mouseX + padding;
+    }
+
+    let toolTipPosY = mouseY - toolTipHeight - padding;
+    if (toolTipPosY < 0) {
+      toolTipPosY = mouseY + padding; // Prevent overflow at top
+    }
+
+    if (toolTipPosY + toolTipHeight > containerBounds.height) {
+      toolTipPosY = containerBounds.height - toolTipHeight - padding; // Prevent overflow below
+    }
+
+    // Position and make visible
+    tooltip
+      .style("left", `${toolTipPosX}px`)
+      .style("top", `${toolTipPosY}px`)
+      .style("visibility", "visible");
   });
 
   // Listening rectangle mouse leave function
@@ -202,7 +237,9 @@ const createGraph = (data, containerId, metric, title, color="steelblue") => {
     circle.transition()
       .duration(50)
       .attr("r", 0);
-    tooltip.style("display", "none");
+    tooltip
+      .style("visibility", "hidden")
+      .style("display", "none");
   });
 };
 

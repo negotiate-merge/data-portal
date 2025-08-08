@@ -28,6 +28,14 @@ const LineGraph = ({ device, graphId, metric, days }) => {
       }
 
     })
+    .catch(function (err) {
+      console.error("Error fetching data: ", err);
+      if (err.message && err.message.includes("404 NOT FOUND")) {
+        // Pass an empty data set if no data returned
+        console.log("404 Error detected - no data available");
+        createGraph(null, graphId, metric, metric);
+      }
+    })
   }, []); // Removed data as a dependency
 
    return null; 

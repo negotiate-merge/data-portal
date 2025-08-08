@@ -90,6 +90,7 @@ def site_data(id):
 
   # Return site specific data set
   csvfiles = db.get_file_paths(id, days) # Sorted array tuples (dateObj, filename) of files
+  if not csvfiles: return jsonify({"error": "No data recorded for this day"}), 404
 
   # build the csv here look near the end of https://chatgpt.com/c/6859a269-8adc-8000-8d0e-869b15b7b94f
   csv_buffer = io.StringIO()

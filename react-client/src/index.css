@@ -109,6 +109,13 @@ body {
   text-align: center;
 }
 
+.no-data {
+  text-align: center;
+  font-size: larger;
+  color: black;
+  font-weight: bold;
+}
+
 rect {
   pointer-events: all;
   fill-opacity: 0;

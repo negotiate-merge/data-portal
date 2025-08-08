@@ -59,7 +59,7 @@ const Marker = ({point}) => {
             </tbody>
           </table>
           <Link 
-            to={`/site-data/${point.devId}?days=1&siteName=${encodeURIComponent(point.siteName)}`}
+            to={`/site-data/${point.devId}?days=0&siteName=${encodeURIComponent(point.siteName)}`}
             state={point}>Go to site data
           </Link>
         </div>
