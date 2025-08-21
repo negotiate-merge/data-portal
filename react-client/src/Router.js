@@ -1,43 +1,26 @@
-import React, { useState, useMemo, useEffect } from 'react';
-import { UserContext } from "./UserContext";
-import { Routes, Route } from "react-router-dom";
+import React, { useContext, useEffect } from 'react';
+import { UserContext, UserProvider } from "./UserContext";
+import { Routes, Route, useNavigate } from "react-router-dom";
 import NotFound from "./pages/NotFound";
 import LoginPage from "./pages/LoginPage";
 import DashBoard from './pages/DashBoard';
 import MapPage from "./pages/MapPage";
 import DevicePage from "./pages/DevicePage";
 import Navbar from "./Navbar";
-import httpClient from './httpClient';
 
 
- const Router = () => {
-  const [ user, setUser ] = useState(() => {
-    const savedUser = localStorage.getItem("user");
-    return savedUser ? JSON.parse(savedUser) : null;
-  });
-  
+const AppRoutes = () => {
+  const { user } = useContext(UserContext);
+  const navigate = useNavigate();
+
   useEffect(() => {
-    httpClient.get("/auth/check")
-      .then(response => {})
-      .catch(error => {
-        console.warn("Session expired, clearing local storage...");
-        localStorage.removeItem("user");
-        setUser(null);
-      })
-    /* The former version 
-    if (user) {
-      localStorage.setItem("user", JSON.stringify(user));
-    } else {
-      localStorage.removeItem("user");
+    if (!user && window.location.pathname !== '/') {
+      navigate('/');
     }
-    */
-  }, []); // Removed user as a dependency with the above changes.
-  
-  const value = useMemo(() => ({ user, setUser }), [user, setUser]);
+  }, [user, navigate]);
 
   return (
     <>
-    <UserContext.Provider value={value}>
       <Navbar />
       <div id="body">
         <Routes>
@@ -48,9 +31,16 @@ import httpClient from './httpClient';
           <Route path="*" element={<NotFound />}/>
         </Routes>
       </div>
-    </UserContext.Provider>
     </>
   );
- };
+};
 
+
+ const Router = () => {
+  return (
+    <UserProvider>
+      <AppRoutes />
+    </UserProvider>
+  );
+ };
  export default Router;

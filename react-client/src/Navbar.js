@@ -1,20 +1,19 @@
 import { useContext } from "react";
-import httpClient from "./httpClient";
 import { UserContext } from "./UserContext";
 
  function Navbar() {
-  const { user } = useContext(UserContext);
+  const { user, logout } = useContext(UserContext);
 
-    const logoutUser = async () => {
-    try {
-      const resp = await httpClient.post("/logout");
-      console.log("Logout response: ", resp.data);
-      localStorage.removeItem("user");
-      // window.location.href = "/";
-    } catch (error) {
-      console.error("Error during logout: ", error);
-    }
-  };
+  // const logoutUser = async () => {
+  //   try {
+  //     // const resp = await httpClient.post("/logout");  // This needs to be reworked on the backend to revoke access
+  //     setUser(null);
+  //     localStorage.removeItem('access_token');
+  //     console.log("Logout response: ", resp.data);
+  //   } catch (error) {
+  //     console.error("Error during logout: ", error);
+  //   }
+  // };
 
   return <nav className="navbar navbar-expand-lg sticky-top bg-body-tertiary" data-bs-theme="dark">
   <div className="container-fluid">
@@ -38,7 +37,7 @@ import { UserContext } from "./UserContext";
               <a className="nav-link disabled" aria-disabled="true" href="">Settings</a>
             </li>
             <li className="nav-item">
-              <a className="nav-link" href="/" onClick={logoutUser}>Logout</a>
+              <a className="nav-link" href="/" onClick={logout}>Logout</a>
             </li>
           </ul>
         </div>
@@ -47,5 +46,4 @@ import { UserContext } from "./UserContext";
   </div>
 </nav>
 }
-
 export default Navbar;

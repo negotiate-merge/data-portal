@@ -1,32 +1,23 @@
-import React, { useContext, useEffect, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import httpClient from '../httpClient';
 import { UserContext } from '../UserContext';
+import { useNavigate } from 'react-router-dom';
 
 const LoginPage = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const { user, setUser } = useContext(UserContext)
-  
+  const { user, login } = useContext(UserContext)
 
-  useEffect(() => {
+  const logInUser = async (demo) => {
     try {
-      httpClient.get("/auth/check");
-    } catch (err) {
-      console.error("Unauthorized:", err.response);
-    }
-    
-  })
-
-  const logInUser = async () => {
-    try {
-      const resp = await httpClient.post('/login', {
+      // Demo arg defaults to demo app being loaded
+      const resp = await httpClient.post((!demo ? '/login' : '/example-site'), {
         email,
         password,
       });
-      setUser(resp.data)
-      localStorage.setItem("user", JSON.stringify(resp.data));
-      window.location.href = "/dashboard";
+      login(resp.data.access_token);
     } catch (err) {
+      // REDUCE THE VERBOSITY OF THESE WHEN APROPRIATE
       console.error("Full error object:", err);
       console.error("Response object:", err.response);
       console.error("Status:", err.response?.status);
@@ -39,25 +30,14 @@ const LoginPage = () => {
     }
   }
 
-  const logInDemo = async () => {
-    try {
-      const resp = await httpClient.post('/example-site');
-      setUser(resp.data)
-      localStorage.setItem("user", JSON.stringify(resp.data));
-      window.location.href = "/dashboard";
-    } catch (err) {
-      console.error("Full error object:", err);
-      console.error("Response object:", err.response);
-      console.error("Status:", err.response?.status);
-
-      if (err.response?.status === 401) {
-        alert("Invalid Credentials");
-      } else {
-        console.error("Login error:", err);
-      }
+  const navigate = useNavigate();
+  useEffect(() => {
+    if (user) {
+      // Navigate to dashboard upon authentication 
+      navigate('/dashboard');
     }
-  }
-
+  }, [user, navigate]);
+  
   if (!user) {
     return (
       <div className='center login-container s-card'>
@@ -77,18 +57,14 @@ const LoginPage = () => {
               onChange={(e) => setPassword(e.target.value)} id="passwd" />
           </div>
           <button id="login-btn" className='btn btn-dark space' type="button" 
-            onClick={() => logInUser()}>Login</button>
+            onClick={() => logInUser(null)}>Login</button>
         </form>
           <div style={{ marginTop: "20px" }}>
-            <button id="example" className='btn btn-secondary space' type="button" 
-            onClick={() => logInDemo()}>See Demonstration</button>
+              <button id="example" className='btn btn-secondary space' type="button" 
+              onClick={() => logInUser('demo')}>See Demonstration</button>
           </div>
       </div>
-    );
-  }
-  else {
-    window.location.href = "/dashboard";
-  }
-};
-
+    )
+  };
+}
 export default LoginPage;

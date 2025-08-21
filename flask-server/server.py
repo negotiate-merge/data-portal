@@ -5,6 +5,7 @@ import logging
 from datetime import datetime
 from flask import Flask, request, session, send_file, jsonify 
 from flask_session import Session
+from flask_jwt_extended import create_access_token, get_jwt_identity, jwt_required, get_jwt, JWTManager
 from flask_cors import CORS
 from config import ApplicationConfig
 import helpers as db
@@ -12,6 +13,8 @@ from werkzeug.security import check_password_hash
 
 app = Flask(__name__)
 app.config.from_object(ApplicationConfig)
+
+jwt = JWTManager(app)
 
 ''' Ensure responses aren't cached
     Maybe make this more targeted in the future. When the app starts to get a little bigger.
@@ -39,10 +42,17 @@ logging.basicConfig(filename='logs/server.log', level=logging.INFO, \
 
 
 @app.route("/api/device-map", methods=['GET'])
-@db.login_required
+@jwt_required()
 def device_map():
-  user = session.get("user_id")
-  company = db.get_company(session.get("company_id"))
+  # Get attributes from token
+  claims = get_jwt()
+  user_id = claims['sub']
+  user_name = claims["user_name"]
+  company_id = claims["company_id"]
+
+  # print(f"device/map got the following from jwt\nuser_id  {user_id}\nuser_name  {user_name}\ncompany_id  {company_id}")
+
+  company = db.get_company(company_id)
   payload = {
     "company": company[0],
     "lat": company[1],
@@ -52,7 +62,7 @@ def device_map():
   }
   
   # Get lastest device data for all devices attached to the users company   
-  devices_raw = db.get_devices(user)
+  devices_raw = db.get_devices(user_id)
   try:
     for d in devices_raw:
       # print("d from device-map", d)
@@ -83,7 +93,7 @@ def device_map():
 
 
 @app.route("/api/site-data/<id>", methods=["GET"])
-@db.login_required
+@jwt_required()
 def site_data(id):
   # Get days query from url
   days = request.args.get("days", default=0, type=int)
@@ -135,22 +145,22 @@ def example_site():
   forwarded_for = request.headers.get('X-Forwarded-For')
   client_ip = forwarded_for.split(',')[0] if forwarded_for else request.remote_addr
 
-  # Flask session variables
-  session["user_id"] = user[0]
-  session["user_name"] = user[1]
-  session["company_id"] = user[3]
-  app.logger.info(f'login: demo-user logged in from {client_ip}')
-
-  return jsonify({
-    "id": user[0],
-    "email": user[1],
-  }), 200
+  # JWT VAriables
+  user_id = user[0]
+  additional_claims = {
+    "user_name": user[1],
+    "company_id": user[3]
+  }
+  
+  app.logger.info(f'login: "demo user" logged in from {client_ip}')
+  # Create JWT access token
+  access_token = create_access_token(identity=user_id, additional_claims=additional_claims)
+  
+  return(jsonify(access_token=access_token)), 200
 
 
 @app.route("/api/login", methods=["POST"])
 def login():
-   session.clear()
-
    if request.method == "POST":
       username = request.json["email"]
       password = request.json["password"]
@@ -164,28 +174,31 @@ def login():
       if not check_password_hash(user[2], password):
         return jsonify({"error": "Invalid password"}), 401
 
-      # Flask session variables
-      session["user_id"] = user[0]
-      session["user_name"] = user[1]
-      session["company_id"] = user[3]
+      # JWT incorporation
+      user_id = user[0]
+      additional_claims = {
+        "user_name": user[1],
+        "company_id": user[3]
+      }
+      
       app.logger.info(f'login: {username} logged in from {client_ip}')
+      access_token = create_access_token(identity=user_id, additional_claims=additional_claims)
 
-      # For react app localStorage usage
-      return jsonify({
-        "id": user[0],
-        "email": user[1],
-      }), 200
+      return(jsonify(jwt=access_token)), 200
    
 
 @app.route("/api/auth/check", methods=["GET"])
+@jwt_required(optional=True)
 def check_auth():
-  if "user_id" in session:
+  # if "user_id" in session:
+  if identity := get_jwt_identity():
+    print(f"jwt-identity from auth/check {identity}")
     return jsonify({"status:": "authenticated"}), 200
-  else:
-    return jsonify({"status": "unauthorized"}), 401
+  return jsonify({"status": "unauthorized"}), 401
    
 
 @app.route("/api/logout", methods=["POST"])
+@jwt_required()
 def logout():
   try:
     session.pop("user_id")

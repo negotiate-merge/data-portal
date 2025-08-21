@@ -45,7 +45,7 @@ const createGraph = (data, containerId, metric, title, color="steelblue") => {
     .attr("font-weight", "bold")
     .text(title)
 
-  /* m AXIS */
+  /* x AXIS */
   const x = d3.scaleTime()
     .domain([d3.min(data, d => d.Time), d3.max(data, d => d.Time)])
     .range([0, width]);

@@ -1,31 +1,45 @@
-import React, { useState, useEffect }from 'react'
+import { useState, useEffect, useContext }from 'react'
 import LineGraph from '../LineGraph';
-import httpClient from '../httpClient';
+import useAxios from '../useAxios';
 import { Link } from 'react-router-dom';
+import { UserContext } from '../UserContext';
+
 
 
 const DashBoard = () => {
   const [ data, setData ] = useState({ devices: [] });
-  
+  const [ loading, setLoading ] = useState(true);
+  const api = useAxios();
+  const { user } = useContext(UserContext);
 
+
+  console.log(`Dashboard has user ${user}`);
   useEffect(() => {
     const fetchDevices = async () => {
       try {
-        const res = await httpClient.get("/device-map");
+        const res = await api.get("/device-map");
         setData(res.data);
+        setLoading(false);
       } catch (err) {
         console.error("Error fetching data:", err);
+        setLoading(false);
       }
     }
     fetchDevices();
   }, []);
 
-
-  // console.log("Data:", data);
   const devices = data.devices.map(device => ({
     devId: device.devId, 
     siteName: device.siteName,
 }));
+
+  if (loading) {
+    return (
+      <div>
+        <p>Loading Dashborad...</p>
+      </div>
+    );
+  }
 
   return (
     <>
@@ -36,7 +50,7 @@ const DashBoard = () => {
             <div key={index} className='device-box'>
               <p>{`${device.siteName} - `}
                 <Link 
-                  to={`/site-data/${device.devId}?days=0&siteName=${encodeURIComponent(device.siteName)}`}
+                  to={(`/site-data/${device.devId}?days=0&siteName=${encodeURIComponent(device.siteName)}`)}
                   state={device}
                   >more data
                 </Link>
@@ -54,5 +68,4 @@ const DashBoard = () => {
     </>
   )
 }
-//         <LineGraph device={devId}/>
 export default DashBoard

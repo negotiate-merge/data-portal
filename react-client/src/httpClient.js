@@ -6,6 +6,7 @@ const api = axios.create({
   withCredentials: true,
 });
 
+/* Removed as part of JWT integration
 // Redirect to home if 401 received
 api.interceptors.response.use(
   response => response,
@@ -19,5 +20,6 @@ api.interceptors.response.use(
     return Promise.reject(error);
   }
 );
+*/
 
 export default api;

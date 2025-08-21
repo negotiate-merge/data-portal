@@ -1,12 +1,18 @@
 import { useEffect, } from 'react';
 import createGraph from './utils/createGraph';
+import useAxios from './useAxios';
 import * as d3 from 'd3';
 
 const LineGraph = ({ device, graphId, metric, days }) => {
+  
+  const api = useAxios();
+
   useEffect(() => {
     // const svg = d3.select(svgRef.current);
-    d3.csv(`/api/site-data/${device}?days=${days}`).then(function (data) { 
-
+    // d3.csv(`/api/site-data/${device}?days=${days}`).then(function (data) { 
+    api.get(`/site-data/${device}?days=${days}`, { responseType: "text" })
+    .then(function (resp) {
+      const data = d3.csvParse(resp.data);
       const parseDate = d3.timeParse("%Y-%m-%d %H:%M:%S")
 
       // Change number strings to numbers
@@ -36,10 +42,8 @@ const LineGraph = ({ device, graphId, metric, days }) => {
         createGraph(null, graphId, metric, metric);
       }
     })
-  }, []); // Removed data as a dependency
-
+  }, [api, device, days]); // Removed data as a dependency
    return null; 
-  // Was returning jsx components here but have moved that to the component that makes the call.
 }
 
 export default LineGraph;
