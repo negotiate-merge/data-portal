@@ -3,7 +3,7 @@ import createGraph from './utils/createGraph';
 import useAxios from './useAxios';
 import * as d3 from 'd3';
 
-const LineGraph = ({ device, graphId, metric, days }) => {
+const LineGraph = ({ device, graphId, metric, days=0 }) => {
   
   const api = useAxios();
 

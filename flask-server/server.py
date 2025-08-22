@@ -184,7 +184,7 @@ def login():
       app.logger.info(f'login: {username} logged in from {client_ip}')
       access_token = create_access_token(identity=user_id, additional_claims=additional_claims)
 
-      return(jsonify(jwt=access_token)), 200
+      return(jsonify(access_token=access_token)), 200
    
 
 @app.route("/api/auth/check", methods=["GET"])

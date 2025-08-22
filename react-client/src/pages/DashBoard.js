@@ -3,6 +3,7 @@ import LineGraph from '../LineGraph';
 import useAxios from '../useAxios';
 import { Link } from 'react-router-dom';
 import { UserContext } from '../UserContext';
+import { jwtDecode } from 'jwt-decode';
 
 
 
@@ -12,8 +13,10 @@ const DashBoard = () => {
   const api = useAxios();
   const { user } = useContext(UserContext);
 
+  // Token data includes [ sub, user_name, company_id ]
+  // const decoded =  user ? jwtDecode(user.jwt) : '';
+  // console.log(`Dashboard has user ${decoded.user_name}`);
 
-  console.log(`Dashboard has user ${user}`);
   useEffect(() => {
     const fetchDevices = async () => {
       try {
@@ -36,7 +39,7 @@ const DashBoard = () => {
   if (loading) {
     return (
       <div>
-        <p>Loading Dashborad...</p>
+        <p>Loading Dashboard...</p>
       </div>
     );
   }

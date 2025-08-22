@@ -57,7 +57,7 @@ const LoginPage = () => {
               onChange={(e) => setPassword(e.target.value)} id="passwd" />
           </div>
           <button id="login-btn" className='btn btn-dark space' type="button" 
-            onClick={() => logInUser(null)}>Login</button>
+            onClick={() => logInUser()}>Login</button>
         </form>
           <div style={{ marginTop: "20px" }}>
               <button id="example" className='btn btn-secondary space' type="button" 
