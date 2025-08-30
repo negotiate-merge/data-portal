@@ -15,7 +15,7 @@ export const UserProvider = ({children}) => {
   });
   
   const [loading, setLoading] = useState(false);
-
+  
   // Save to localStorage when user changes
   useEffect(() => {
     if (user?.jwt) {
@@ -36,6 +36,7 @@ export const UserProvider = ({children}) => {
   const logout = () => {
     setUser(null);
     localStorage.removeItem('jwt');
+    console.log('logout function ran');
   };
 
   const isTokenExpired = (token) => {

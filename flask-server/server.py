@@ -7,14 +7,15 @@ from flask import Flask, request, session, send_file, jsonify
 from flask_session import Session
 from flask_jwt_extended import create_access_token, get_jwt_identity, jwt_required, get_jwt, JWTManager
 from flask_cors import CORS
-from config import ApplicationConfig
+from config import ApplicationConfig, redis_client
 import helpers as db
 from werkzeug.security import check_password_hash
 
+
 app = Flask(__name__)
 app.config.from_object(ApplicationConfig)
-
 jwt = JWTManager(app)
+
 
 ''' Ensure responses aren't cached
     Maybe make this more targeted in the future. When the app starts to get a little bigger.
@@ -26,16 +27,14 @@ def after_request(response):
   response.headers["Pragma"] = "no-cache"
   return response
 
-# Making changes here to fix bug in firefox logout
-# cors = CORS(app, resources={r"/*": {"origins": "http://34.129.37.135:80"}}, supports_credentials=True)
 cors = CORS(app, resources={r"/*": {
   "origins": ["http://34.129.37.135", "https://dev.synergitech.com.au", "https://synergitech.com.au"],
   "methods": ["GET", "POST", "OPTIONS", "DELETE"],
   "allow_headers": ["Content-Type", "Authorization"],
   "supports_credentials": True
 }})
-server_session = Session(app)
 
+# server_session = Session(app) # Removed with JWT intergration
 # Configure logging
 logging.basicConfig(filename='logs/server.log', level=logging.INFO, \
                     format='%(asctime)s %(levelname)s: %(message)s', datefmt='%m/%d/%Y %I:%M:%S %p')
@@ -195,18 +194,38 @@ def check_auth():
     print(f"jwt-identity from auth/check {identity}")
     return jsonify({"status:": "authenticated"}), 200
   return jsonify({"status": "unauthorized"}), 401
-   
+
+
+# JWT blacklist checker
+@jwt.token_in_blocklist_loader
+def check_if_token_revoked(jwt_header, jwt_payload):
+  jti = jwt_payload['jti']
+  return redis_client.get(f"blacklist:{jti}") is not None 
+
+
+# Add token to blacklist until it expires
+def blacklist_token(jti, expires_at):
+  import time
+  ttl = int(expires_at - time.time())
+  if ttl > 0:
+    redis_client.setex(f"blacklist:{jti}", ttl, "revoked")
+    return True
+  return False
+
 
 @app.route("/api/logout", methods=["POST"])
 @jwt_required()
 def logout():
-  try:
-    session.pop("user_id")
-    return "200"
-  except KeyError as e:
-    return jsonify({"error": "No user_id in session"}), 205
-  
+  # Revoke current JWT
+  token_data = get_jwt()
+  jti = token_data['jti']
+  expires_at = token_data['exp']
 
+  if blacklist_token(jti, expires_at):
+    return jsonify({'message': 'Successfully logged out'}), 200
+  else:
+    return jsonify({'error': "Error logging out on backend"}), 500
+  
 if __name__ == "__main__":
-  app.run(host="127.0.0.1", port=5000, debug=app.config['DEBUG']) # debug=True
+  app.run(host="127.0.0.1", port=5000, debug=app.config['DEBUG'])
   

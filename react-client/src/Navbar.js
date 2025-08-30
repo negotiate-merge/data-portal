@@ -1,19 +1,21 @@
 import { useContext } from "react";
 import { UserContext } from "./UserContext";
+import useAxios from "./useAxios";
 
- function Navbar() {
+function Navbar() {
   const { user, logout } = useContext(UserContext);
+  const api = useAxios();
 
-  // const logoutUser = async () => {
-  //   try {
-  //     // const resp = await httpClient.post("/logout");  // This needs to be reworked on the backend to revoke access
-  //     setUser(null);
-  //     localStorage.removeItem('access_token');
-  //     console.log("Logout response: ", resp.data);
-  //   } catch (error) {
-  //     console.error("Error during logout: ", error);
-  //   }
-  // };
+  const logoutUser = async () => {
+    try {
+      // const resp = await httpClient.post("/logout");  // This needs to be reworked on the backend to revoke access
+      await api.post('/logout');
+    } catch (e) {
+      console.error("Error during logout: ", e);
+    } finally {
+      logout();
+    }
+  };
 
   return <nav className="navbar navbar-expand-lg sticky-top bg-body-tertiary" data-bs-theme="dark">
   <div className="container-fluid">
@@ -37,7 +39,10 @@ import { UserContext } from "./UserContext";
               <a className="nav-link disabled" aria-disabled="true" href="">Settings</a>
             </li>
             <li className="nav-item">
-              <a className="nav-link" href="/" onClick={logout}>Logout</a>
+              <a className="nav-link" href="/" onClick={(e) => {
+                e.preventDefault();
+                logoutUser()
+              }}>Logout</a>
             </li>
           </ul>
         </div>

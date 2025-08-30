@@ -4,7 +4,9 @@ import { timeFormat } from 'd3';
 const createGraph = (data, containerId, metric, title, color="steelblue") => {
   const isMobile = window.innerWidth < 768;
 
-  if (!data) {
+  // console.log('data from createGraph:', data);
+
+  if (data.length <= 1) {
     const messageContainer = d3.select(`#${containerId}`);
     messageContainer.selectAll('*').remove();
     messageContainer.
@@ -13,7 +15,7 @@ const createGraph = (data, containerId, metric, title, color="steelblue") => {
   }
 
   const margin = { top: 50, right: 30, bottom: 50, left: 40 };
-  const width = ((isMobile) ? 800 : window.innerWidth - 20) - margin.left - margin.right; // Was 800 - ...
+  const width = ((isMobile) ? 800 : window.innerWidth - 20) - margin.left - margin.right;
   const height = 400 - margin.top - margin.bottom;
 
   const maxValue = d3.max(data, d => d[metric]);
@@ -62,7 +64,7 @@ const createGraph = (data, containerId, metric, title, color="steelblue") => {
     .call(xAxis)
     .call(g => g.select(".domain").remove())
     .selectAll(".tick line")
-    .style("stroke-opacity", 0) // removes tick lines at axis
+    .style("stroke-opacity", 0) // remove tick lines at axis
   
   svg.selectAll(".tick text").attr("fill", "#000");
 
